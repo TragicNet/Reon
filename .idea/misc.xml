@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="DesignSurface">
+    <option name="filePathToZoomLevelMap">
+      <map>
+        <entry key="..\:/Users/Max/AndroidStudioProjects/Reon/app/src/main/res/drawable-v24/ic_launcher_foreground.xml" value="0.240625" />
+        <entry key="..\:/Users/Max/AndroidStudioProjects/Reon/app/src/main/res/drawable/ic_baseline_add_24.xml" value="0.240625" />
+        <entry key="..\:/Users/Max/AndroidStudioProjects/Reon/app/src/main/res/drawable/ic_baseline_check_24.xml" value="0.240625" />
+        <entry key="..\:/Users/Max/AndroidStudioProjects/Reon/app/src/main/res/drawable/ic_launcher_background.xml" value="0.240625" />
+        <entry key="..\:/Users/Max/AndroidStudioProjects/Reon/app/src/main/res/layout-w936dp/activity_login.xml" value="0.1" />
+        <entry key="..\:/Users/Max/AndroidStudioProjects/Reon/app/src/main/res/layout/activity_base.xml" value="0.2006340579710145" />
+        <entry key="..\:/Users/Max/AndroidStudioProjects/Reon/app/src/main/res/layout/activity_dashboard.xml" value="0.192481884057971" />
+        <entry key="..\:/Users/Max/AndroidStudioProjects/Reon/app/src/main/res/layout/activity_folder.xml" value="0.192481884057971" />
+        <entry key="..\:/Users/Max/AndroidStudioProjects/Reon/app/src/main/res/layout/activity_folder_edit.xml" value="0.192481884057971" />
+        <entry key="..\:/Users/Max/AndroidStudioProjects/Reon/app/src/main/res/layout/activity_main.xml" value="0.2125" />
+        <entry key="..\:/Users/Max/AndroidStudioProjects/Reon/app/src/main/res/layout/activity_main2.xml" value="0.192481884057971" />
+        <entry key="..\:/Users/Max/AndroidStudioProjects/Reon/app/src/main/res/layout/activity_profile.xml" value="0.20380434782608695" />
+        <entry key="..\:/Users/Max/AndroidStudioProjects/Reon/app/src/main/res/layout/toolbar.xml" value="0.20606884057971014" />
+      </map>
+    </option>
+  </component>
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_11" default="true" project-jdk-name="11" project-jdk-type="JavaSDK">
+    <output url="file://$PROJECT_DIR$/build/classes" />
+  </component>
+  <component name="ProjectType">
+    <option name="id" value="Android" />
+  </component>
+</project>

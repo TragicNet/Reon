@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "681117256423",
+    "project_id": "reon-6931c",
+    "storage_bucket": "reon-6931c.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:681117256423:android:031511ee2876764712b042",
+        "android_client_info": {
+          "package_name": "com.example.reon"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "681117256423-eua6v1bvb63tbpc7f16k8mcvp30ti80f.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.reon",
+            "certificate_hash": "d8bc38b38b29ef5f9d462de84da0e9ebdf781df9"
+          }
+        },
+        {
+          "client_id": "681117256423-vs16ne0k0co87qlb5d74keinjd0rb2f8.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDjrG1bvzoY4sZ2-92pk5EaaqDwjTNt-ck"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "681117256423-vs16ne0k0co87qlb5d74keinjd0rb2f8.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
