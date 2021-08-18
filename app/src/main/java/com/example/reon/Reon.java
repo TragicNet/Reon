@@ -46,6 +46,7 @@ public class Reon extends Application {
 
     public void initDatabase(FirebaseDatabase database) {
         this.database = database;
+        database.setPersistenceEnabled(true);
     }
 
 //    public User getUser() {
