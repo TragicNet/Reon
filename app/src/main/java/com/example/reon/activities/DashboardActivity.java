@@ -7,47 +7,35 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
-import com.example.reon.Reon;
 import com.example.reon.classes.Room;
 import com.example.reon.databinding.ActivityDashboardBinding;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
 
 public class DashboardActivity extends BaseActivity {
 
-    private static final String TAG = "reon/DASHBOARD_ACTIVITY";
-
     private ActivityDashboardBinding binding;
-
-    private FirebaseUser user;
+    private FirebaseUser firebaseUser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setApp((Reon) this.getApplication());
         binding = ActivityDashboardBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+        init();
 
-        initToolbar();
+        firebaseUser = app.getCurrentUser();
 
-        user = app.getUser();
+        binding.nameView.setText(firebaseUser.getEmail());
 
-        binding.nameView.setText(user.getEmail());
-
-        binding.createRoomButton.setOnClickListener(new View.OnClickListener() {
+        binding.buttonAddRoom.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Log.d(TAG, "Add Room");
@@ -63,23 +51,25 @@ public class DashboardActivity extends BaseActivity {
                     public void onCancelled(DatabaseError databaseError) {
                     }
                 });
-                String uniqueId;
-                do {
-                    uniqueId = UUID.randomUUID().toString();
-                } while(allRooms.contains(uniqueId));
+                String roomKey;
+                roomKey = roomsRef.push().getKey();
+//                do {
+//                    roomKey = UUID.randomUUID().toString();
+//                } while(allRooms.contains(roomKey));
 
                 ArrayList<String> adminList = new ArrayList<>();
                 ArrayList<String> memberList = new ArrayList<>();
-                Log.d(TAG, "before user");
-                String userId = user.getUid();
+                Log.d(TAG, "roomKey: " + roomKey);
+                String userId = firebaseUser.getUid();
                 adminList.add(userId);
                 memberList.add(userId);
-                Room room = new Room(uniqueId, Calendar.getInstance().getTime(), "room2", "abcd", adminList, memberList);
+                Room room = new Room(roomKey, Calendar.getInstance().getTime(), "room2", "abcd", adminList, memberList);
                 Toast.makeText(DashboardActivity.this, "Room Created...\n" + room.getId(), Toast.LENGTH_SHORT).show();
-                roomsRef.child(uniqueId).setValue(room);
+                assert roomKey != null;
+                roomsRef.child(roomKey).setValue(room);
 
-                DatabaseReference userRoomsRef = app.getDatabase().getReference("users").child(user.getUid()).child("rooms");
-                String finalUniqueId = uniqueId;
+                DatabaseReference userRoomsRef = app.getDatabase().getReference("users").child(firebaseUser.getUid()).child("rooms");
+                String finalUniqueId = roomKey;
                 userRoomsRef.addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
@@ -98,6 +88,5 @@ public class DashboardActivity extends BaseActivity {
                 });
             }
         });
-
     }
 }
