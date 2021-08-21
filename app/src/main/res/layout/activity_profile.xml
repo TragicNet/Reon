@@ -41,25 +41,13 @@
             app:layout_constraintTop_toBottomOf="@+id/textView3" />
 
         <Button
-            android:id="@+id/logoutButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@color/common.accent"
-            android:text="Logout"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toEndOf="@+id/dashboardButton"
-            app:layout_constraintTop_toTopOf="@+id/dashboardButton" />
-
-        <Button
-            android:id="@+id/dashboardButton"
+            android:id="@+id/button_logout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
             android:background="@color/common.accent"
-            android:text="Dashboard"
+            android:text="Logout"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/logoutButton"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/nameView" />
@@ -81,7 +69,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:labelFor="@+id/edit_user_name"
+                android:labelFor="@+id/text_user_name"
                 android:text="Name:" />
 
             <TextView
@@ -90,8 +78,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_marginStart="10dp"
-                android:ems="10"
-                android:text="Name" />
+                android:text="Name"
+                android:textSize="18sp" />
         </LinearLayout>
 
         <LinearLayout
@@ -110,7 +98,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:labelFor="@+id/edit_user_about"
+                android:labelFor="@+id/text_user_about"
                 android:text="About:" />
 
             <TextView
@@ -120,7 +108,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="10dp"
                 android:background="@drawable/background_view"
-                android:text="About" />
+                android:text="About"
+                android:textSize="18sp" />
         </LinearLayout>
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -133,11 +122,11 @@
             android:clickable="true"
             android:focusable="true"
             android:src="@drawable/ic_edit"
-            app:tint="?attr/common.bg"
             app:backgroundTint="?attr/common.accent"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:maxImageSize="32dp" />
+            app:maxImageSize="32dp"
+            app:tint="?attr/common.bg" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.appcompat.widget.LinearLayoutCompat>

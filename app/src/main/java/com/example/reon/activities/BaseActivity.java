@@ -1,7 +1,13 @@
 package com.example.reon.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.MenuItem;
+import android.view.View;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.reon.R;
@@ -22,10 +28,26 @@ public abstract class BaseActivity extends AppCompatActivity {
         this.app = ((Reon) this.getApplication());
     }
 
-    public void init() {
+    public void init(String title, boolean upEnabled) {
         setSupportActionBar(findViewById(R.id.toolbar));
-        getSupportActionBar().setDisplayShowTitleEnabled(true);
-        getSupportActionBar().setDisplayShowHomeEnabled(true);
+        ActionBar toolbar = getSupportActionBar();
+        assert toolbar != null;
+        toolbar.setDisplayShowTitleEnabled(true);
+        toolbar.setDisplayShowHomeEnabled(true);
+        toolbar.setTitle(title);
+        toolbar.setDisplayHomeAsUpEnabled(upEnabled);
     }
 
+    public void init() {
+        init("Reon", false);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        int itemId = item.getItemId();
+        if(itemId == android.R.id.home) {
+            onBackPressed();
+        }
+        return super.onOptionsItemSelected(item);
+    }
 }

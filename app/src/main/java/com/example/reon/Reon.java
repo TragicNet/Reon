@@ -15,7 +15,9 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Locale;
 
 public class Reon extends Application {
 
@@ -23,6 +25,15 @@ public class Reon extends Application {
 
     private GoogleSignInClient googleSignInClient;
     private FirebaseDatabase database;
+
+    public SimpleDateFormat dateTimeFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm", Locale.US);
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        this.database = FirebaseDatabase.getInstance();
+        database.setPersistenceEnabled(true);
+    }
 
     public FirebaseAuth getAuth() {
         return FirebaseAuth.getInstance();
@@ -46,7 +57,6 @@ public class Reon extends Application {
 
     public void initDatabase(FirebaseDatabase database) {
         this.database = database;
-        database.setPersistenceEnabled(true);
     }
 
 //    public User getUser() {

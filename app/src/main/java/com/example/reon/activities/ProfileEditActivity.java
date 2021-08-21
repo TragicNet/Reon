@@ -1,8 +1,11 @@
 package com.example.reon.activities;
 
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -19,21 +22,21 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 public class ProfileEditActivity extends BaseActivity {
 
     private ActivityProfileEditBinding binding;
-    private User user;
+    private boolean newUser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = ActivityProfileEditBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-        init();
-
-        binding.editUserName.setVisibility(View.INVISIBLE);
-        binding.editUserAbout.setVisibility(View.INVISIBLE);
+        Intent intent = getIntent();
+        newUser = intent.hasExtra("newUser");
+        init("Profile", !newUser);
 
         DatabaseReference userRef = app.getDatabase().getReference("users").child(app.getCurrentUser().getUid());
         userRef.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -41,9 +44,6 @@ public class ProfileEditActivity extends BaseActivity {
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 binding.editUserName.setText((String) dataSnapshot.child("name").getValue());
                 binding.editUserAbout.setText((String) dataSnapshot.child("about").getValue());
-
-                binding.editUserName.setVisibility(View.VISIBLE);
-                binding.editUserAbout.setVisibility(View.VISIBLE);
             }
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
@@ -51,6 +51,7 @@ public class ProfileEditActivity extends BaseActivity {
             }
         });
 
+        
         binding.buttonUpdateProfile.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -59,16 +60,22 @@ public class ProfileEditActivity extends BaseActivity {
 
                 // Toast if empty Name
                 if (name.equals("")) {
-                    Toast.makeText(ProfileEditActivity.this, "Enter a Valid Name", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), "Enter a Valid Name", Toast.LENGTH_SHORT).show();
                 } else {
                     Map<String, Object> userMap = new HashMap<>();
                     userMap.put("name", name);
                     userMap.put("about", about);
                     userRef.updateChildren(userMap);
+                    if(newUser)
+                        startActivity(new Intent(getApplicationContext(), DashboardActivity.class));
                     finish();
                 }
             }
         });
+
+        binding.editUserName.requestFocus();
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
 
     }
 }

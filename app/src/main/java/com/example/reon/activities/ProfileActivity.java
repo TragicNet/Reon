@@ -25,9 +25,12 @@ public class ProfileActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         binding = ActivityProfileBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-        init();
+        init("Profile", true);
 
         checkUser();
+
+        String email = firebaseUser.getEmail();
+        binding.nameView.setText(email);
 
         DatabaseReference userRef = app.getDatabase().getReference("users").child(app.getCurrentUser().getUid());
         userRef.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -45,7 +48,7 @@ public class ProfileActivity extends BaseActivity {
         Log.d(TAG, "usename: " + userRef.child("name"));
 
         // handle logout
-        binding.logoutButton.setOnClickListener(new View.OnClickListener() {
+        binding.buttonLogout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 app.getAuth().signOut();
@@ -54,18 +57,10 @@ public class ProfileActivity extends BaseActivity {
             }
         });
 
-        binding.dashboardButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(ProfileActivity.this, DashboardActivity.class));
-                //finish();
-            }
-        });
-
         binding.buttonEditProfile.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(ProfileActivity.this, ProfileEditActivity.class));
+                startActivity(new Intent(getApplicationContext(), ProfileEditActivity.class));
             }
         });
 
@@ -76,14 +71,16 @@ public class ProfileActivity extends BaseActivity {
         firebaseUser = app.getCurrentUser();
         if(firebaseUser == null) {
             // user is not logged in
-            startActivity(new Intent(this, MainActivity.class));
+            startActivity(new Intent(getApplicationContext(), MainActivity.class));
+            finishAffinity();
+            /* Second method to clear all activities
+            Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
             finish();
-        } else {
-            // user is logged in
-            app.initDatabase(FirebaseDatabase.getInstance());
-            // get user info
-            String email = firebaseUser.getEmail();
-            binding.nameView.setText(email);
+             */
         }
     }
 }

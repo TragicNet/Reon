@@ -26,6 +26,7 @@ import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -34,6 +35,7 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public class MainActivity extends BaseActivity {
 
@@ -44,7 +46,6 @@ public class MainActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-
         init();
 
         GoogleSignInOptions googleSignInOptions = new GoogleSignInOptions
@@ -54,11 +55,15 @@ public class MainActivity extends BaseActivity {
                 .build();
 
         app.setGoogleSignInClient(GoogleSignIn.getClient(this, googleSignInOptions));
+//        if(app.getDatabase() == null)
+//            FirebaseDatabase.getInstance().setPersistenceEnabled(true);
+//        app.initDatabase(FirebaseDatabase.getInstance());
 
         // init Firebase
         checkUser();
 
         // SignIn Button
+        binding.googleSignInButton.setSize(SignInButton.SIZE_WIDE);
         binding.googleSignInButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -68,8 +73,6 @@ public class MainActivity extends BaseActivity {
                 googleSignInResultLauncher.launch(intent);
             }
         });
-
-        binding.googleSignInButton.setSize(SignInButton.SIZE_WIDE);
 
 //        int nightModeFlags = getApplicationContext().getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
 //        if (nightModeFlags == Configuration.UI_MODE_NIGHT_YES)
@@ -81,8 +84,31 @@ public class MainActivity extends BaseActivity {
         // go to profile if logged
         if(app.getCurrentUser() != null) {
             Log.d(TAG, "Already logged in");
-            startActivity(new Intent(MainActivity.this, ProfileActivity.class));
-            finish();
+            // get name of the user
+            DatabaseReference userRef = app.getDatabase().getReference("users").child(app.getCurrentUser().getUid());
+            userRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    String name = (String) dataSnapshot.child("name").getValue();
+                    Log.d(TAG, "Username: " + name);
+                    // go to dashboard if name changed or go to profile edit
+                    if(name == null) {
+                        Log.d(TAG, "Sending to profile edit");
+                        Intent intent = new Intent(getApplicationContext(), ProfileEditActivity.class);
+                        intent.putExtra("newUser", true);
+                        startActivity(intent);
+                        finish();
+                    } else {
+                        Log.d(TAG, "Sending to profile");
+                        startActivity(new Intent(getApplicationContext(), DashboardActivity.class));
+                        finish();
+                    }
+                }
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+                    Log.d(TAG, databaseError.getMessage());
+                }
+            });
         }
     }
 
@@ -120,13 +146,12 @@ public class MainActivity extends BaseActivity {
                 Log.d(TAG, "onSuccess: Email " + email);
 
                 // check if new or existing
-                if(authResult.getAdditionalUserInfo().isNewUser()) {
+                if(Objects.requireNonNull(authResult.getAdditionalUserInfo()).isNewUser()) {
                     // firebaseUser is new account Created
                     Log.d(TAG, "onSuccess: account created...\n" + email);
-                    Toast.makeText(MainActivity.this, "Account Created...\n" + email, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), "Account Created...\n" + email, Toast.LENGTH_SHORT).show();
 
-                    //final FirebaseDatabase database = FirebaseDatabase.getInstance();
-                    app.initDatabase(FirebaseDatabase.getInstance());
+                    // app.initDatabase(FirebaseDatabase.getInstance());
                     DatabaseReference userRef = app.getDatabase().getReference("users").child(firebaseUser.getUid());
                     userRef.addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
@@ -144,13 +169,11 @@ public class MainActivity extends BaseActivity {
 
                 } else {
                     // firebaseUser exists
-                    Log.d(TAG, "onSuccess: account exists...\n" + email);
-                    Toast.makeText(MainActivity.this, "Account Exists...\n" + email, Toast.LENGTH_SHORT).show();
+                    Log.d(TAG, "onSuccess: account exists: " + email);
+                    Toast.makeText(getApplicationContext(), "Account Exists...\n" + email, Toast.LENGTH_SHORT).show();
                 }
 
-                // start profile activity
-                startActivity(new Intent(MainActivity.this, ProfileActivity.class));
-                finish();
+                checkUser();
 
             }
         }).addOnFailureListener(new OnFailureListener() {

@@ -1,28 +1,40 @@
 package com.example.reon.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.RecyclerView.Adapter;
 
+import com.example.reon.R;
+import com.example.reon.adapters.RoomListAdapter;
 import com.example.reon.classes.Room;
 import com.example.reon.databinding.ActivityDashboardBinding;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.List;
 
-public class DashboardActivity extends BaseActivity {
+public class DashboardActivity extends BaseActivity implements RoomListAdapter.OnRoomListener {
 
     private ActivityDashboardBinding binding;
     private FirebaseUser firebaseUser;
+
+    ArrayList<String> roomIds = new ArrayList<>();
+    ArrayList<Room> rooms = new ArrayList<>();
+    private RecyclerView roomList;
+    private Adapter roomListAdapter;
+    private RecyclerView.LayoutManager roomListLayoutManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,62 +43,111 @@ public class DashboardActivity extends BaseActivity {
         setContentView(binding.getRoot());
         init();
 
-        firebaseUser = app.getCurrentUser();
+        initailizeRecyclerView();
 
-        binding.nameView.setText(firebaseUser.getEmail());
-
-        binding.buttonAddRoom.setOnClickListener(new View.OnClickListener() {
+        binding.buttonCreateRoom.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.d(TAG, "Add Room");
-                ArrayList<String> allRooms = new ArrayList<>();
-                DatabaseReference roomsRef = app.getDatabase().getReference("rooms");
-                roomsRef.addValueEventListener(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        for(DataSnapshot ds: dataSnapshot.getChildren())
-                            allRooms.add(ds.getKey());
-                    }
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-                    }
-                });
-                String roomKey;
-                roomKey = roomsRef.push().getKey();
-//                do {
-//                    roomKey = UUID.randomUUID().toString();
-//                } while(allRooms.contains(roomKey));
-
-                ArrayList<String> adminList = new ArrayList<>();
-                ArrayList<String> memberList = new ArrayList<>();
-                Log.d(TAG, "roomKey: " + roomKey);
-                String userId = firebaseUser.getUid();
-                adminList.add(userId);
-                memberList.add(userId);
-                Room room = new Room(roomKey, Calendar.getInstance().getTime(), "room2", "abcd", adminList, memberList);
-                Toast.makeText(DashboardActivity.this, "Room Created...\n" + room.getId(), Toast.LENGTH_SHORT).show();
-                assert roomKey != null;
-                roomsRef.child(roomKey).setValue(room);
-
-                DatabaseReference userRoomsRef = app.getDatabase().getReference("users").child(firebaseUser.getUid()).child("rooms");
-                String finalUniqueId = roomKey;
-                userRoomsRef.addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        List<String> userRooms = new ArrayList<>();
-                        for(DataSnapshot ds : dataSnapshot.getChildren()) {
-                            userRooms.add((String) ds.getValue());
-                        }
-                        userRooms.add(finalUniqueId);
-                        userRoomsRef.setValue(userRooms);
-                    }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError databaseError) {
-                        Log.d(TAG, databaseError.getMessage());
-                    }
-                });
+                startActivity(new Intent(getApplicationContext(), RoomEditActivity.class));
             }
         });
+    }
+
+    private void initailizeRecyclerView() {
+        roomList = binding.recyclerRoomList;
+        roomList.setNestedScrollingEnabled(false);
+        roomList.setHasFixedSize(false);
+        roomListLayoutManager = new GridLayoutManager(getApplicationContext(), 2, RecyclerView.VERTICAL, false);
+        roomList.setLayoutManager(roomListLayoutManager);
+
+        DatabaseReference userRoomsRef = app.getDatabase().getReference("users").child(app.getCurrentUser().getUid()).child("rooms");
+        userRoomsRef.addChildEventListener(userRoomsListener);
+
+        DatabaseReference allRoomsRef = app.getDatabase().getReference("rooms");
+        allRoomsRef.addChildEventListener(allRoomsListener);
+    }
+
+    ChildEventListener userRoomsListener = new ChildEventListener() {
+        @Override
+        public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+
+        }
+
+        @Override
+        public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+            if(snapshot.exists()) {
+                for(DataSnapshot ds : snapshot.getChildren()) {
+                    roomIds.add((String) ds.getValue());
+                }
+            }
+        }
+
+        @Override
+        public void onChildRemoved(@NonNull DataSnapshot snapshot) {}
+
+        @Override
+        public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {}
+
+        @Override
+        public void onCancelled(@NonNull DatabaseError databaseError) {
+            Log.d(TAG, databaseError.getMessage());
+        }
+    };
+
+    private ChildEventListener allRoomsListener = new ChildEventListener() {
+        @Override
+        public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {}
+
+        @Override
+        public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+            if(snapshot.exists()) {
+                for (DataSnapshot ds : snapshot.getChildren()) {
+                    if(roomIds.contains(ds.getKey())) {
+                        //Map<String, Object> map = (Map<String, Object>) ds.getValue();
+                        rooms.add(ds.getValue(Room.class));
+                    }
+                }
+                roomListAdapter = new RoomListAdapter(getApplicationContext(), rooms, DashboardActivity.this);
+                roomList.setAdapter(roomListAdapter);
+            }
+        }
+
+        @Override
+        public void onChildRemoved(@NonNull DataSnapshot snapshot) {}
+
+        @Override
+        public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {}
+
+        @Override
+        public void onCancelled(@NonNull DatabaseError databaseError) {
+            Log.d(TAG, databaseError.getMessage());
+        }
+    };
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_dashboard, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        int itemId = item.getItemId();
+        if (itemId == R.id.menuItem_profile) {
+            Log.d(TAG, "Pressed profile menuitem");
+            startActivity(new Intent(getApplicationContext(), ProfileActivity.class));
+        } else if (itemId == R.id.menuItem_settings) {
+            Log.d(TAG, "Pressed settings menuitem");
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onRoomClick(int position) {
+        Intent intent = new Intent(getApplicationContext(), RoomActivity.class);
+        intent.putExtra("roomId", rooms.get(position).getId());
+        intent.putExtra("roomName", rooms.get(position).getName());
+        startActivity(intent);
     }
 }

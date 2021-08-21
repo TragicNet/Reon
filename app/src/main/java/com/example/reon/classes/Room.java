@@ -16,11 +16,10 @@ public class Room {
     public Room() {
     }
 
-    public Room(String id, Date created_at, String name, String description, ArrayList<String> adminList, ArrayList<String> memberList) {
+    public Room(String id, String created_at, String name, String description, ArrayList<String> adminList, ArrayList<String> memberList) {
         super();
-        SimpleDateFormat dateTimeFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm", Locale.US);
         this.id = id;
-        this.created_at = dateTimeFormat.format(created_at);
+        this.created_at = created_at;
         this.name = name;
         this.description = description;
         this.adminList = adminList;
@@ -35,9 +34,8 @@ public class Room {
         return created_at;
     }
 
-    public void setCreated_at(Date created_at) {
-        SimpleDateFormat dateTimeFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm", Locale.US);
-        this.created_at = dateTimeFormat.format(created_at);
+    public void setCreated_at(String created_at) {
+        this.created_at = created_at;
     }
 
     public String getName() {
