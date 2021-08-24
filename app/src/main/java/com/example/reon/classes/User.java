@@ -15,9 +15,7 @@ public class User {
     private String about;
     private ArrayList<String> roomList;
 
-    public User() {
-
-    }
+    public User() {}
 
     public User(String id, String email, String name, String about, ArrayList<String> roomList) {
         this.id = id;

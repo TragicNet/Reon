@@ -66,8 +66,14 @@ public class ProfileEditActivity extends BaseActivity {
                     userMap.put("name", name);
                     userMap.put("about", about);
                     userRef.updateChildren(userMap);
-                    if(newUser)
+                    if(newUser) {
                         startActivity(new Intent(getApplicationContext(), DashboardActivity.class));
+                        finish();
+                    }
+                    Intent intent = new Intent();
+                    intent.putExtra("name", name);
+                    intent.putExtra("about", about);
+                    setResult(RESULT_OK, intent);
                     finish();
                 }
             }

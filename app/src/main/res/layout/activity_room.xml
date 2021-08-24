@@ -12,86 +12,36 @@
         android:id="@+id/toolbar"
         layout="@layout/toolbar" />
 
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:padding="5dp">
+        android:layout_height="match_parent">
 
-        <LinearLayout
-            android:id="@+id/nameContainer"
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recycler_folder_list"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="100dp"
-            android:background="@drawable/background_view"
-            android:gravity="center_vertical"
-            android:orientation="horizontal"
-            android:padding="10dp"
+            android:layout_height="match_parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:labelFor="@+id/text_room_name"
-                android:text="Name:" />
-
-            <TextView
-                android:id="@+id/text_room_name"
-                style="@style/TextAppearance.MaterialComponents.Body1"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_marginStart="10dp"
-                android:text="Name"
-                android:textSize="18sp" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/aboutContainer"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:background="@drawable/background_view"
-            android:orientation="horizontal"
-            android:padding="10dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/nameContainer">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:labelFor="@+id/text_room_description"
-                android:text="Description:" />
-
-            <TextView
-                android:id="@+id/text_room_description"
-                style="@style/TextAppearance.MaterialComponents.Body1"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="10dp"
-                android:background="@drawable/background_view"
-                android:text="Description"
-                android:textSize="18sp" />
-        </LinearLayout>
+            android:listSelector="@drawable/list_item_selector"
+            android:divider="@null"
+            android:dividerHeight="6dp"/>
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/button_edit_room"
+            android:id="@+id/button_create_folder"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="18dp"
-            android:layout_marginRight="18dp"
-            android:layout_marginBottom="18dp"
+            android:layout_marginEnd="23dp"
+            android:layout_marginBottom="23dp"
             android:clickable="true"
             android:focusable="true"
-            android:src="@drawable/ic_edit"
+            android:src="@drawable/ic_add"
             app:backgroundTint="?attr/common.accent"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:maxImageSize="32dp"
-            app:tint="?attr/common.bg" />
+            app:tint="@color/white" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.appcompat.widget.LinearLayoutCompat>

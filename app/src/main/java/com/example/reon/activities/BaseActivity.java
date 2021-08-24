@@ -1,6 +1,8 @@
 package com.example.reon.activities;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
@@ -22,9 +24,11 @@ public abstract class BaseActivity extends AppCompatActivity {
         this.TAG = ("reon_" + this.getClass().getSimpleName());
     }
 
+    @SuppressLint("SourceLockedOrientationActivity")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         this.app = ((Reon) this.getApplication());
     }
 

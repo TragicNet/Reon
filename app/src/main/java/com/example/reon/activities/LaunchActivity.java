@@ -13,7 +13,7 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 
 import com.example.reon.R;
-import com.example.reon.databinding.ActivityMainBinding;
+import com.example.reon.databinding.ActivityLaunchBinding;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
@@ -37,14 +37,14 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-public class MainActivity extends BaseActivity {
+public class LaunchActivity extends BaseActivity {
 
-    private ActivityMainBinding binding;
+    private ActivityLaunchBinding binding;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        binding = ActivityMainBinding.inflate(getLayoutInflater());
+        binding = ActivityLaunchBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         init();
 

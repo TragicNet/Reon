@@ -12,11 +12,12 @@ public class Room {
     private String description;
     private ArrayList<String> adminList;
     private ArrayList<String> memberList;
+    private ArrayList<String> folderList;
 
     public Room() {
     }
 
-    public Room(String id, String created_at, String name, String description, ArrayList<String> adminList, ArrayList<String> memberList) {
+    public Room(String id, String created_at, String name, String description, ArrayList<String> adminList, ArrayList<String> memberList, ArrayList<String> folderList) {
         super();
         this.id = id;
         this.created_at = created_at;
@@ -24,7 +25,10 @@ public class Room {
         this.description = description;
         this.adminList = adminList;
         this.memberList = memberList;
+        this.folderList = folderList;
     }
+
+    public void setId(String id) { this.id = id; }
 
     public String getId() {
         return id;
@@ -69,4 +73,8 @@ public class Room {
     public void setMemberList(ArrayList<String> memberList) {
         this.memberList = memberList;
     }
+
+    public ArrayList<String> getFolderList() { return folderList; }
+
+    public void setFolderList(ArrayList<String> folderList) { this.folderList = folderList; }
 }

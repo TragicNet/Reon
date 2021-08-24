@@ -5,6 +5,10 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 
 import com.example.reon.databinding.ActivityProfileBinding;
@@ -12,13 +16,29 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+
+import java.util.Objects;
 
 public class ProfileActivity extends BaseActivity {
 
     private ActivityProfileBinding binding;
     private FirebaseUser firebaseUser;
+
+    ActivityResultLauncher<Intent> profileEditActivityResultLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            new ActivityResultCallback<ActivityResult>() {
+                @Override
+                public void onActivityResult(ActivityResult result) {
+                    Intent data = result.getData();
+                    Log.d(TAG, "resultCode: " + result.getResultCode());
+                    if (data != null) {
+                        Log.d(TAG, "onActivityResult: " + data);
+                        binding.textUserName.setText(data.getStringExtra("name"));
+                        binding.textUserAbout.setText(data.getStringExtra("about"));
+                    }
+                }
+            });
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,7 +80,7 @@ public class ProfileActivity extends BaseActivity {
         binding.buttonEditProfile.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(getApplicationContext(), ProfileEditActivity.class));
+                profileEditActivityResultLauncher.launch(new Intent(getApplicationContext(), ProfileEditActivity.class));
             }
         });
 
@@ -71,7 +91,7 @@ public class ProfileActivity extends BaseActivity {
         firebaseUser = app.getCurrentUser();
         if(firebaseUser == null) {
             // user is not logged in
-            startActivity(new Intent(getApplicationContext(), MainActivity.class));
+            startActivity(new Intent(getApplicationContext(), LaunchActivity.class));
             finishAffinity();
             /* Second method to clear all activities
             Intent intent = new Intent(getApplicationContext(), MainActivity.class);

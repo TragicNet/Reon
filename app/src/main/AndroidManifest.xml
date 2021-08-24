@@ -4,8 +4,6 @@
 
     <application
         android:name=".Reon"
-        android:configChanges="orientation"
-        android:screenOrientation="portrait"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -13,10 +11,16 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Reon">
         <activity
-            android:name=".activities.DashboardActivity"
+            android:name=".activities.FolderActivity"
             android:exported="true" />
         <activity
             android:name=".activities.RoomActivity"
+            android:exported="true" />
+        <activity
+            android:name=".activities.DashboardActivity"
+            android:exported="true" />
+        <activity
+            android:name=".activities.RoomInfoActivity"
             android:exported="true" />
         <activity
             android:name=".activities.RoomEditActivity"
@@ -31,7 +35,7 @@
             android:name=".activities.ProfileActivity"
             android:exported="true" />
         <activity
-            android:name=".activities.MainActivity"
+            android:name=".activities.LaunchActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

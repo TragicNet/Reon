@@ -26,6 +26,10 @@ public class RoomListAdapter extends RecyclerView.Adapter<RoomListAdapter.ViewHo
         this.listener = listener;
     }
 
+    public void setRooms(ArrayList<Room> rooms) {
+        this.rooms = rooms;
+    }
+
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {

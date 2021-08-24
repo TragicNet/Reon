@@ -94,7 +94,7 @@
             android:clickable="true"
             android:focusable="true"
             android:src="@drawable/ic_check"
-            app:tint="?attr/common.bg"
+            app:tint="@color/white"
             app:backgroundTint="?attr/common.accent"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"

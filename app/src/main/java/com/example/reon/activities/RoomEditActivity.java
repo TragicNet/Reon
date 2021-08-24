@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 
@@ -45,8 +46,8 @@ public class RoomEditActivity extends BaseActivity {
             init( "New Room", true);
         }
 
-        DatabaseReference userRef = app.getDatabase().getReference("rooms").child(roomId);
-        userRef.addListenerForSingleValueEvent(new ValueEventListener() {
+        DatabaseReference roomRef = app.getDatabase().getReference("rooms").child(roomId);
+        roomRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 binding.editRoomName.setText((String) dataSnapshot.child("name").getValue());
@@ -71,10 +72,11 @@ public class RoomEditActivity extends BaseActivity {
                 } else {
                     if (newRoom)
                         createNewRoom();
-                    Map<String, Object> userMap = new HashMap<>();
-                    userMap.put("name", name);
-                    userMap.put("description", description);
-                    userRef.updateChildren(userMap);
+                    DatabaseReference roomRef = app.getDatabase().getReference("rooms").child(roomId);
+                    Map<String, Object> roomMap = new HashMap<>();
+                    roomMap.put("name", name);
+                    roomMap.put("description", description);
+                    roomRef.updateChildren(roomMap);
                     if (newRoom) {
                         Intent intent = new Intent(getApplicationContext(), RoomActivity.class);
                         intent.putExtra("roomId", roomId);
@@ -82,31 +84,23 @@ public class RoomEditActivity extends BaseActivity {
                         startActivity(intent);
                         finish();
                     }
+                    Intent intent = new Intent();
+                    intent.putExtra("name", name);
+                    intent.putExtra("description", description);
+                    setResult(RESULT_OK, intent);
                     finish();
                 }
             }
         });
 
-        binding.editRoomName.requestFocus();
-        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-        imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
+        if(binding.editRoomName.requestFocus()) {
+            getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+        }
 
     }
 
     private void createNewRoom() {
-        Log.d(TAG, "Add Room");
-        ArrayList<String> allRooms = new ArrayList<>();
         DatabaseReference roomsRef = app.getDatabase().getReference("rooms");
-        roomsRef.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                for(DataSnapshot ds: dataSnapshot.getChildren())
-                    allRooms.add(ds.getKey());
-            }
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-            }
-        });
         String roomKey;
         roomKey = roomsRef.push().getKey();
 //                do {
@@ -115,21 +109,21 @@ public class RoomEditActivity extends BaseActivity {
 
         ArrayList<String> adminList = new ArrayList<>();
         ArrayList<String> memberList = new ArrayList<>();
+        ArrayList<String> folderList = new ArrayList<>();
         roomId = roomKey;
-        Log.d(TAG, "roomKey: " + roomKey);
         String userId = app.getCurrentUser().getUid();
         adminList.add(userId);
         memberList.add(userId);
-        Room room = new Room(roomKey, app.dateTimeFormat.format(Calendar.getInstance().getTime()), "", "", adminList, memberList);
+        Room room = new Room(roomKey, app.dateTimeFormat.format(Calendar.getInstance().getTime()), "", "", adminList, memberList, folderList);
         //Toast.makeText(getApplicationContext(), "Room Created...\n" + room.getId(), Toast.LENGTH_SHORT).show();
         assert roomKey != null;
         roomsRef.child(roomKey).setValue(room);
 
-        DatabaseReference userRoomsRef = app.getDatabase().getReference("users").child(app.getCurrentUser().getUid()).child("rooms");
+        DatabaseReference userRoomsRef = app.getDatabase().getReference("users").child(app.getCurrentUser().getUid()).child("roomList");
         String finalUniqueId = roomKey;
         userRoomsRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 List<String> userRooms = new ArrayList<>();
                 for(DataSnapshot ds : dataSnapshot.getChildren()) {
                     userRooms.add((String) ds.getValue());

@@ -8,7 +8,6 @@ import android.view.MenuItem;
 import android.view.View;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.RecyclerView.Adapter;
@@ -18,10 +17,10 @@ import com.example.reon.adapters.RoomListAdapter;
 import com.example.reon.classes.Room;
 import com.example.reon.databinding.ActivityDashboardBinding;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 
@@ -30,18 +29,25 @@ public class DashboardActivity extends BaseActivity implements RoomListAdapter.O
     private ActivityDashboardBinding binding;
     private FirebaseUser firebaseUser;
 
+    private DatabaseReference userRoomsRef, allRoomsRef;
+
     ArrayList<String> roomIds = new ArrayList<>();
     ArrayList<Room> rooms = new ArrayList<>();
     private RecyclerView roomList;
-    private Adapter roomListAdapter;
+    private RoomListAdapter roomListAdapter;
     private RecyclerView.LayoutManager roomListLayoutManager;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = ActivityDashboardBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
         init();
+
+        userRoomsRef = app.getDatabase().getReference("users").child(app.getCurrentUser().getUid()).child("roomList");
+        allRoomsRef = app.getDatabase().getReference("rooms");
 
         initailizeRecyclerView();
 
@@ -59,70 +65,46 @@ public class DashboardActivity extends BaseActivity implements RoomListAdapter.O
         roomList.setHasFixedSize(false);
         roomListLayoutManager = new GridLayoutManager(getApplicationContext(), 2, RecyclerView.VERTICAL, false);
         roomList.setLayoutManager(roomListLayoutManager);
+        roomListAdapter = new RoomListAdapter(getApplicationContext(), rooms, DashboardActivity.this);
+        roomList.setAdapter(roomListAdapter);
 
-        DatabaseReference userRoomsRef = app.getDatabase().getReference("users").child(app.getCurrentUser().getUid()).child("rooms");
-        userRoomsRef.addChildEventListener(userRoomsListener);
-
-        DatabaseReference allRoomsRef = app.getDatabase().getReference("rooms");
-        allRoomsRef.addChildEventListener(allRoomsListener);
-    }
-
-    ChildEventListener userRoomsListener = new ChildEventListener() {
-        @Override
-        public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-
-        }
-
-        @Override
-        public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-            if(snapshot.exists()) {
-                for(DataSnapshot ds : snapshot.getChildren()) {
-                    roomIds.add((String) ds.getValue());
-                }
-            }
-        }
-
-        @Override
-        public void onChildRemoved(@NonNull DataSnapshot snapshot) {}
-
-        @Override
-        public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {}
-
-        @Override
-        public void onCancelled(@NonNull DatabaseError databaseError) {
-            Log.d(TAG, databaseError.getMessage());
-        }
-    };
-
-    private ChildEventListener allRoomsListener = new ChildEventListener() {
-        @Override
-        public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {}
-
-        @Override
-        public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-            if(snapshot.exists()) {
-                for (DataSnapshot ds : snapshot.getChildren()) {
-                    if(roomIds.contains(ds.getKey())) {
-                        //Map<String, Object> map = (Map<String, Object>) ds.getValue();
-                        rooms.add(ds.getValue(Room.class));
+        userRoomsRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if(snapshot.exists()) {
+                    roomIds.clear();
+                    for(DataSnapshot ds : snapshot.getChildren()) {
+                        roomIds.add((String) ds.getValue());
                     }
+
+                    allRoomsRef.addValueEventListener(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                            if(snapshot.exists() && !roomIds.isEmpty()) {
+                                rooms.clear();
+                                for (DataSnapshot ds : snapshot.getChildren()) {
+                                    if(roomIds.contains(ds.getKey())) {
+                                        //Map<String, Object> map = (Map<String, Object>) ds.getValue();
+                                        rooms.add(ds.getValue(Room.class));
+                                    }
+                                }
+                                roomListAdapter.setRooms(rooms);
+                                roomListAdapter.notifyDataSetChanged();
+                            }
+                        }
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {
+                            Log.d(TAG, error.getMessage());
+                        }
+                    });
                 }
-                roomListAdapter = new RoomListAdapter(getApplicationContext(), rooms, DashboardActivity.this);
-                roomList.setAdapter(roomListAdapter);
             }
-        }
-
-        @Override
-        public void onChildRemoved(@NonNull DataSnapshot snapshot) {}
-
-        @Override
-        public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {}
-
-        @Override
-        public void onCancelled(@NonNull DatabaseError databaseError) {
-            Log.d(TAG, databaseError.getMessage());
-        }
-    };
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.d(TAG, error.getMessage());
+            }
+        });
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
