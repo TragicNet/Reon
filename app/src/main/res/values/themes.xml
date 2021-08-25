@@ -22,6 +22,11 @@
 
     </style>
 
+    <style name="CustomAlertDialog" parent="Theme.AppCompat.DayNight.Dialog.Alert">
+        <item name="colorAccent">?common.accent</item>
+        <item name="android:windowBackground">@drawable/background_view</item>
+    </style>
+
     <style name="CustomPopupTheme" parent="ThemeOverlay.AppCompat.Dark">
         <item name="android:textColor">@color/common.accent</item>
         <item name="android:colorBackground">@color/common.bg</item>

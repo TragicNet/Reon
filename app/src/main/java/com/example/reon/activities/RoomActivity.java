@@ -8,19 +8,22 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Toast;
+import android.view.WindowManager;
+import android.widget.EditText;
 
 import com.example.reon.R;
 import com.example.reon.adapters.FolderListAdapter;
-import com.example.reon.adapters.RoomListAdapter;
+import com.example.reon.classes.AlertDialogBuilder;
 import com.example.reon.classes.Folder;
-import com.example.reon.classes.Room;
 import com.example.reon.databinding.ActivityRoomBinding;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -29,9 +32,7 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
 public class RoomActivity extends BaseActivity implements FolderListAdapter.OnFolderListener {
@@ -164,39 +165,63 @@ public class RoomActivity extends BaseActivity implements FolderListAdapter.OnFo
     }
 
     private void createNewFolder() {
-        String folderKey;
-        folderKey = allFoldersRef.push().getKey();
-//                do {
-//                    folderKey = UUID.randomUUID().toString();
-//                } while(allRooms.contains(folderKey));
+        LayoutInflater inflater = LayoutInflater.from(RoomActivity.this);
+        View folderNameView = inflater.inflate(R.layout.alert_rename_folder, null);
 
-        ArrayList<String> filesList = new ArrayList<>();
-        String folderId = folderKey;
-        String created_by = app.getCurrentUser().getUid();
-        Folder folder = new Folder(folderKey, app.dateTimeFormat.format(Calendar.getInstance().getTime()), "folder", created_by, filesList);
-        assert folderKey != null;
-        allFoldersRef.child(folderKey).setValue(folder);
+        // Need current activity context
+        AlertDialogBuilder builder = new AlertDialogBuilder(RoomActivity.this);
+        builder.setView(folderNameView);
 
-        folders.add(folder);
+        final EditText editFolderName = folderNameView.findViewById(R.id.edit_folder_name);
 
-        String finalUniqueId = folderKey;
-        DatabaseReference roomFoldersRef = app.getDatabase().getReference("rooms").child(roomId).child("folderList");
-        roomFoldersRef.addListenerForSingleValueEvent(new ValueEventListener() {
+        builder.setTitle("New Folder");
+        builder.setCancelable(true);
+        builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                List<String> roomFolders = new ArrayList<>();
-                for(DataSnapshot ds : dataSnapshot.getChildren()) {
-                    roomFolders.add((String) ds.getValue());
-                }
-                roomFolders.add(finalUniqueId);
-                roomFoldersRef.setValue(roomFolders);
-            }
+            public void onClick(DialogInterface dialog, int which) {
+                String folderName = editFolderName.getText().toString();
+                String folderKey = allFoldersRef.push().getKey();
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-                Log.d(TAG, databaseError.getMessage());
+                ArrayList<String> filesList = new ArrayList<>();
+                String created_by = app.getCurrentUser().getUid();
+                Folder folder = new Folder(folderKey, app.dateTimeFormat.format(Calendar.getInstance().getTime()), folderName, created_by, filesList);
+                assert folderKey != null;
+                allFoldersRef.child(folderKey).setValue(folder);
+
+                folders.add(folder);
+
+                DatabaseReference roomFoldersRef = app.getDatabase().getReference("rooms").child(roomId).child("folderList");
+                roomFoldersRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        List<String> roomFolders = new ArrayList<>();
+                        for(DataSnapshot ds : dataSnapshot.getChildren()) {
+                            roomFolders.add((String) ds.getValue());
+                        }
+                        roomFolders.add(folderKey);
+                        roomFoldersRef.setValue(roomFolders);
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+                        Log.d(TAG, databaseError.getMessage());
+                    }
+                });
             }
         });
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+
+        AlertDialog folderNameDialog = builder.create();
+        folderNameDialog.show();
+
+        if(editFolderName.requestFocus()) {
+            folderNameDialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+        }
     }
 
 }

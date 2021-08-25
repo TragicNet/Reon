@@ -10,6 +10,7 @@
 
         <item name="android:textColorTertiary">@color/common.fg</item>
         <item name="android:windowAnimationStyle">@style/CustomActivityAnimation</item>
+<!--        <item name="android:alertDialogStyle">@style/CustomAlertDialogStyle</item>-->
 
         <!-- Primary brand color. -->
         <item name="colorPrimary">@color/common.accent</item>
@@ -20,6 +21,12 @@
         <!-- Status bar color. -->
         <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>
 
+
+    </style>
+
+    <style name="CustomAlertDialog" parent="Theme.AppCompat.DayNight.Dialog.Alert">
+        <item name="colorAccent">?common.accent</item>
+        <item name="android:windowBackground">@drawable/background_view</item>
     </style>
 
     <style name="CustomPopupTheme" parent="ThemeOverlay.AppCompat.Dark">
