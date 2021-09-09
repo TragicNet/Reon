@@ -4,6 +4,9 @@
     <option name="filePathToZoomLevelMap">
       <map>
         <entry key="..\:/Users/Max/AndroidStudioProjects/Reon/app/src/main/res/drawable-anydpi/ic_add.xml" value="0.25625" />
+        <entry key="..\:/Users/Max/AndroidStudioProjects/Reon/app/src/main/res/drawable-anydpi/ic_android.xml" value="0.24114583333333334" />
+        <entry key="..\:/Users/Max/AndroidStudioProjects/Reon/app/src/main/res/drawable-anydpi/ic_archive.xml" value="0.24114583333333334" />
+        <entry key="..\:/Users/Max/AndroidStudioProjects/Reon/app/src/main/res/drawable-anydpi/ic_audio.xml" value="0.24114583333333334" />
         <entry key="..\:/Users/Max/AndroidStudioProjects/Reon/app/src/main/res/drawable-anydpi/ic_check.xml" value="0.25677083333333334" />
         <entry key="..\:/Users/Max/AndroidStudioProjects/Reon/app/src/main/res/drawable-anydpi/ic_download.xml" value="0.24114583333333334" />
         <entry key="..\:/Users/Max/AndroidStudioProjects/Reon/app/src/main/res/drawable-anydpi/ic_downloading.xml" value="0.24114583333333334" />
@@ -13,7 +16,12 @@
         <entry key="..\:/Users/Max/AndroidStudioProjects/Reon/app/src/main/res/drawable-anydpi/ic_group.xml" value="0.25677083333333334" />
         <entry key="..\:/Users/Max/AndroidStudioProjects/Reon/app/src/main/res/drawable-anydpi/ic_image.xml" value="0.10104166666666667" />
         <entry key="..\:/Users/Max/AndroidStudioProjects/Reon/app/src/main/res/drawable-anydpi/ic_inbox.xml" value="0.25677083333333334" />
+        <entry key="..\:/Users/Max/AndroidStudioProjects/Reon/app/src/main/res/drawable-anydpi/ic_ms_powerpoint.xml" value="0.24114583333333334" />
+        <entry key="..\:/Users/Max/AndroidStudioProjects/Reon/app/src/main/res/drawable-anydpi/ic_pdf.xml" value="0.24114583333333334" />
+        <entry key="..\:/Users/Max/AndroidStudioProjects/Reon/app/src/main/res/drawable-anydpi/ic_video.xml" value="0.24114583333333334" />
+        <entry key="..\:/Users/Max/AndroidStudioProjects/Reon/app/src/main/res/drawable-anydpi/ic_web.xml" value="0.24114583333333334" />
         <entry key="..\:/Users/Max/AndroidStudioProjects/Reon/app/src/main/res/drawable-anydpi/ic_word.xml" value="0.24114583333333334" />
+        <entry key="..\:/Users/Max/AndroidStudioProjects/Reon/app/src/main/res/drawable-anydpi/ic_xcel.xml" value="0.24114583333333334" />
         <entry key="..\:/Users/Max/AndroidStudioProjects/Reon/app/src/main/res/drawable-hdpi/listItem_selector.xml" value="0.25677083333333334" />
         <entry key="..\:/Users/Max/AndroidStudioProjects/Reon/app/src/main/res/drawable-hdpi/selection.xml" value="0.25677083333333334" />
         <entry key="..\:/Users/Max/AndroidStudioProjects/Reon/app/src/main/res/drawable-v24/ic_launcher_foreground.xml" value="0.240625" />

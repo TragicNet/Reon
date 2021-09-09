@@ -3,33 +3,21 @@ package com.example.reon.adapters;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.media.Image;
-import android.media.ThumbnailUtils;
-import android.net.Uri;
-import android.provider.MediaStore;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.webkit.MimeTypeMap;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.core.content.FileProvider;
 import androidx.core.widget.ImageViewCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.reon.R;
 import com.example.reon.Reon;
-import com.example.reon.activities.FolderActivity;
 import com.example.reon.classes.File;
-import com.google.firebase.database.DatabaseReference;
 
-import java.io.ByteArrayOutputStream;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -108,42 +96,26 @@ public class FileListAdapter extends RecyclerView.Adapter<FileListAdapter.ViewHo
                 Log.d("reon_FileListAdapter", holder.image.getDrawable().getIntrinsicWidth() + ", " + holder.image.getDrawable().getIntrinsicHeight());
             }
         } else if(Arrays.asList(".mp3", ".wav", ".ogg", ".midi").contains(ext)) {
-
+            holder.image.setImageResource(R.drawable.ic_audio);
         } else if(Arrays.asList(".mp4", ".rmvb", ".avi", ".flv", ".3gp").contains(ext)) {
-
+            holder.image.setImageResource(R.drawable.ic_video);
         } else if(Arrays.asList(".jsp", ".html", ".htm", ".js", ".php").contains(ext)) {
-
+            holder.image.setImageResource(R.drawable.ic_web);
         } else if(Arrays.asList(".xls", ".xlsx").contains(ext)) {
-
+            holder.image.setImageResource(R.drawable.ic_ms_xcel);
         } else if(Arrays.asList(".doc", ".docx").contains(ext)) {
-
+            holder.image.setImageResource(R.drawable.ic_ms_word);
         } else if(Arrays.asList(".ppt", ".pptx").contains(ext)) {
-
+            holder.image.setImageResource(R.drawable.ic_audio);
         } else if(Arrays.asList(".pdf").contains(ext)) {
-
+            holder.image.setImageResource(R.drawable.ic_audio);
         } else if(Arrays.asList(".jar", ".zip", ".rar", ".gz", ".7z").contains(ext)) {
-
+            holder.image.setImageResource(R.drawable.ic_archive);
         } else if(Arrays.asList(".apk").contains(ext)) {
-
+            holder.image.setImageResource(R.drawable.ic_android);
         } else {
-
+            holder.image.setImageResource(R.drawable.ic_file);
         }
-
-//        return when ("$ext") {
-//             -> R.drawable.image
-//             -> R.drawable.audio
-//             -> R.drawable.video
-//             -> R.drawable.web
-//             -> R.drawable.file
-//             -> R.drawable.file
-//             -> R.drawable.file
-//             -> R.drawable.file
-//             -> R.drawable.pdf
-//             -> R.drawable.zip
-//             -> R.drawable.apk
-//        else -> R.drawable.file
-//        }
-
     }
 
     Bitmap getPreview(String path) {
