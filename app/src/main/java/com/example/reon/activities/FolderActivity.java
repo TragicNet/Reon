@@ -10,6 +10,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.OpenableColumns;
@@ -29,6 +31,7 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.core.content.FileProvider;
+import androidx.core.widget.ImageViewCompat;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -51,6 +54,7 @@ import com.google.firebase.storage.UploadTask;
 
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Objects;
 
@@ -132,6 +136,7 @@ public class FolderActivity extends BaseActivity implements FileListAdapter.OnFi
                                 for (DataSnapshot ds : snapshot.getChildren()) {
                                     if (fileIds.contains(ds.getKey())) {
                                         files.add(ds.getValue(File.class));
+//                                        files.get(files.size() - 1).setThumbnail(createThumbnail(files.get(files.size() - 1)));
                                     }
                                 }
                                 fileListAdapter.setFiles(files);
@@ -152,6 +157,37 @@ public class FolderActivity extends BaseActivity implements FileListAdapter.OnFi
             }
         });
     }
+
+//    private Bitmap createThumbnail(File file) {
+//        java.io.File temp = new java.io.File((Reon.rootPath + file.getName()));
+//        String ext = "";
+//
+//        if(file.getName().contains(".")) {
+//            //String ext = MimeTypeMap.getFileExtensionFromUrl(file.getName());
+//            ext = file.getName().substring(file.getName().lastIndexOf("."));
+//        }
+//        Log.d("reon_FileListAdapter", "file: " + file.getName());
+//        Log.d("reon_FileListAdapter", "ext: " + ext);
+//        if(Arrays.asList(".png", ".jpg", ".jpeg", ".gif", ".bmp").contains(ext)) {
+//            Log.d("reon_FileListAdapter", "image");
+//            if (temp.exists()) {
+//                if (file.getThumbnail() == null) {
+//                    Log.d("reon_FileListAdapter", "path: " + temp.getPath());
+//
+//                    Bitmap bitmap = BitmapFactory.decodeFile(temp.getPath());
+//                    int origWidth = bitmap.getWidth();
+//                    int origHeight = bitmap.getHeight();
+//                    bitmap = Bitmap.createScaledBitmap(bitmap, origWidth / 10, origHeight / 10, false);
+//
+//                    if (bitmap != null) {
+//                        Log.d("reon_FileListAdapter", "set Bitmap");
+//                        return bitmap;
+//                    }
+//                }
+//            }
+//        }
+//        return null;
+//    }
 
     @Override
     public void onFileClick(int position) {

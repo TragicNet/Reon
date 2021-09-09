@@ -93,22 +93,19 @@ public class FileListAdapter extends RecyclerView.Adapter<FileListAdapter.ViewHo
                 if(file.getThumbnail() == null) {
                     Log.d("reon_FileListAdapter", "path: " + temp.getPath());
                     Bitmap bitmap = getPreview(temp.getPath());
-                    final int THUMBSIZE = 64;
-
-//                    Bitmap bitmap = ThumbnailUtils.extractThumbnail(
-//                            BitmapFactory.decodeFile(temp.getAbsolutePath()),
-//                            THUMBSIZE,
-//                            THUMBSIZE);
 
                     if(bitmap != null) {
                         Log.d("reon_FileListAdapter", "set Bitmap");
                         file.setThumbnail(bitmap);
                         holder.image.setImageBitmap(bitmap);
                         ImageViewCompat.setImageTintList(holder.image, null);
+                    } else {
+                        holder.image.setImageResource(R.drawable.ic_image);
                     }
                 }
             } else {
                 holder.image.setImageResource(R.drawable.ic_image);
+                Log.d("reon_FileListAdapter", holder.image.getDrawable().getIntrinsicWidth() + ", " + holder.image.getDrawable().getIntrinsicHeight());
             }
         } else if(Arrays.asList(".mp3", ".wav", ".ogg", ".midi").contains(ext)) {
 
@@ -150,10 +147,11 @@ public class FileListAdapter extends RecyclerView.Adapter<FileListAdapter.ViewHo
     }
 
     Bitmap getPreview(String path) {
+        final int scaleDown = 1;
         Bitmap bitmap = BitmapFactory.decodeFile(path);
         int origWidth = bitmap.getWidth();
         int origHeight = bitmap.getHeight();
-        bitmap = Bitmap.createScaledBitmap(bitmap, origWidth / 10, origHeight / 10, false);
+        bitmap = Bitmap.createScaledBitmap(bitmap, origWidth / scaleDown, origHeight / scaleDown, false);
         return bitmap;
     }
 
