@@ -12,18 +12,19 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 
 import com.example.reon.databinding.ActivityProfileBinding;
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
 
-import java.util.Objects;
-
 public class ProfileActivity extends BaseActivity {
 
     private ActivityProfileBinding binding;
-    private FirebaseUser firebaseUser;
 
     ActivityResultLauncher<Intent> profileEditActivityResultLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
@@ -45,11 +46,10 @@ public class ProfileActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         binding = ActivityProfileBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
         init("Profile", true);
 
-        checkUser();
-
-        String email = firebaseUser.getEmail();
+        String email = app.getCurrentUser().getEmail();
         binding.nameView.setText(email);
 
         DatabaseReference userRef = app.getDatabase().getReference("users").child(app.getCurrentUser().getUid());
@@ -71,9 +71,23 @@ public class ProfileActivity extends BaseActivity {
         binding.buttonLogout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Log.d(TAG, "Logging Out");
+
                 app.getAuth().signOut();
-                app.getGoogleSignInClient().signOut();
-                checkUser();
+                Log.d(TAG, "Logged Out Auth");
+
+                GoogleSignIn.getClient(
+                        getApplicationContext(),
+                        new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).build()
+                ).signOut().addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        Log.d(TAG, "Logged Out Google");
+                        Log.d(TAG, "Current User: " + app.getCurrentUser());
+                        startActivity(new Intent(getApplicationContext(), DashboardActivity.class));
+                        finishAffinity();
+                    }
+                });
             }
         });
 
@@ -84,23 +98,5 @@ public class ProfileActivity extends BaseActivity {
             }
         });
 
-    }
-
-    private void checkUser() {
-        // get current user
-        firebaseUser = app.getCurrentUser();
-        if(firebaseUser == null) {
-            // user is not logged in
-            startActivity(new Intent(getApplicationContext(), LaunchActivity.class));
-            finishAffinity();
-            /* Second method to clear all activities
-            Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(intent);
-            finish();
-             */
-        }
     }
 }

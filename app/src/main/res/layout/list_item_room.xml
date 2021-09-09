@@ -31,7 +31,7 @@
             android:ellipsize="end"
             android:maxLines="1"
             android:padding="5dp"
-            android:text="Text"
+            android:text="Name"
             android:textSize="18sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"

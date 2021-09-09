@@ -16,7 +16,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:padding="1dp">
+        android:padding="5dp">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recycler_folder_list"

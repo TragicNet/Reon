@@ -13,9 +13,10 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 
 import com.example.reon.R;
-import com.example.reon.databinding.ActivityLaunchBinding;
+import com.example.reon.databinding.ActivitySignInBinding;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.ApiException;
@@ -26,25 +27,25 @@ import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
-import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-public class LaunchActivity extends BaseActivity {
+public class SignInActivity extends BaseActivity {
 
-    private ActivityLaunchBinding binding;
+    private ActivitySignInBinding binding;
+
+    private GoogleSignInClient googleSignInClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        binding = ActivityLaunchBinding.inflate(getLayoutInflater());
+        binding = ActivitySignInBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         init();
 
@@ -54,10 +55,7 @@ public class LaunchActivity extends BaseActivity {
                 .requestEmail()
                 .build();
 
-        app.setGoogleSignInClient(GoogleSignIn.getClient(this, googleSignInOptions));
-//        if(app.getDatabase() == null)
-//            FirebaseDatabase.getInstance().setPersistenceEnabled(true);
-//        app.initDatabase(FirebaseDatabase.getInstance());
+        googleSignInClient = GoogleSignIn.getClient(this, googleSignInOptions);
 
         // init Firebase
         checkUser();
@@ -68,7 +66,7 @@ public class LaunchActivity extends BaseActivity {
             @Override
             public void onClick(View v) {
                 Log.d(TAG, "onClick: begin");
-                Intent intent = app.getGoogleSignInClient().getSignInIntent();
+                Intent intent = googleSignInClient.getSignInIntent();
 
                 googleSignInResultLauncher.launch(intent);
             }
@@ -99,7 +97,7 @@ public class LaunchActivity extends BaseActivity {
                         startActivity(intent);
                         finish();
                     } else {
-                        Log.d(TAG, "Sending to profile");
+                        Log.d(TAG, "Sending to dashboard");
                         startActivity(new Intent(getApplicationContext(), DashboardActivity.class));
                         finish();
                     }

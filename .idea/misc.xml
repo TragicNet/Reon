@@ -5,10 +5,15 @@
       <map>
         <entry key="..\:/Users/Max/AndroidStudioProjects/Reon/app/src/main/res/drawable-anydpi/ic_add.xml" value="0.25625" />
         <entry key="..\:/Users/Max/AndroidStudioProjects/Reon/app/src/main/res/drawable-anydpi/ic_check.xml" value="0.25677083333333334" />
+        <entry key="..\:/Users/Max/AndroidStudioProjects/Reon/app/src/main/res/drawable-anydpi/ic_download.xml" value="0.24114583333333334" />
+        <entry key="..\:/Users/Max/AndroidStudioProjects/Reon/app/src/main/res/drawable-anydpi/ic_downloading.xml" value="0.24114583333333334" />
         <entry key="..\:/Users/Max/AndroidStudioProjects/Reon/app/src/main/res/drawable-anydpi/ic_edit.xml" value="0.25677083333333334" />
+        <entry key="..\:/Users/Max/AndroidStudioProjects/Reon/app/src/main/res/drawable-anydpi/ic_file.xml" value="0.24114583333333334" />
         <entry key="..\:/Users/Max/AndroidStudioProjects/Reon/app/src/main/res/drawable-anydpi/ic_folder.xml" value="0.25677083333333334" />
         <entry key="..\:/Users/Max/AndroidStudioProjects/Reon/app/src/main/res/drawable-anydpi/ic_group.xml" value="0.25677083333333334" />
+        <entry key="..\:/Users/Max/AndroidStudioProjects/Reon/app/src/main/res/drawable-anydpi/ic_image.xml" value="0.10104166666666667" />
         <entry key="..\:/Users/Max/AndroidStudioProjects/Reon/app/src/main/res/drawable-anydpi/ic_inbox.xml" value="0.25677083333333334" />
+        <entry key="..\:/Users/Max/AndroidStudioProjects/Reon/app/src/main/res/drawable-anydpi/ic_word.xml" value="0.24114583333333334" />
         <entry key="..\:/Users/Max/AndroidStudioProjects/Reon/app/src/main/res/drawable-hdpi/listItem_selector.xml" value="0.25677083333333334" />
         <entry key="..\:/Users/Max/AndroidStudioProjects/Reon/app/src/main/res/drawable-hdpi/selection.xml" value="0.25677083333333334" />
         <entry key="..\:/Users/Max/AndroidStudioProjects/Reon/app/src/main/res/drawable-v24/ic_launcher_foreground.xml" value="0.240625" />
@@ -20,28 +25,33 @@
         <entry key="..\:/Users/Max/AndroidStudioProjects/Reon/app/src/main/res/drawable/selection.xml" value="0.24114583333333334" />
         <entry key="..\:/Users/Max/AndroidStudioProjects/Reon/app/src/main/res/drawable/shape_selection.xml" value="0.24114583333333334" />
         <entry key="..\:/Users/Max/AndroidStudioProjects/Reon/app/src/main/res/layout-w936dp/activity_login.xml" value="0.1" />
+        <entry key="..\:/Users/Max/AndroidStudioProjects/Reon/app/src/main/res/layout-w936dp/list_item_file.xml" value="0.16495901639344263" />
         <entry key="..\:/Users/Max/AndroidStudioProjects/Reon/app/src/main/res/layout-w936dp/room_list_item.xml" value="0.12090163934426229" />
         <entry key="..\:/Users/Max/AndroidStudioProjects/Reon/app/src/main/res/layout/activity_base.xml" value="0.2006340579710145" />
         <entry key="..\:/Users/Max/AndroidStudioProjects/Reon/app/src/main/res/layout/activity_dashboard.xml" value="0.1" />
-        <entry key="..\:/Users/Max/AndroidStudioProjects/Reon/app/src/main/res/layout/activity_folder.xml" value="0.192481884057971" />
+        <entry key="..\:/Users/Max/AndroidStudioProjects/Reon/app/src/main/res/layout/activity_folder.xml" value="0.225" />
         <entry key="..\:/Users/Max/AndroidStudioProjects/Reon/app/src/main/res/layout/activity_folder_edit.xml" value="0.192481884057971" />
         <entry key="..\:/Users/Max/AndroidStudioProjects/Reon/app/src/main/res/layout/activity_launch.xml" value="0.1" />
         <entry key="..\:/Users/Max/AndroidStudioProjects/Reon/app/src/main/res/layout/activity_main.xml" value="0.2125" />
         <entry key="..\:/Users/Max/AndroidStudioProjects/Reon/app/src/main/res/layout/activity_main2.xml" value="0.192481884057971" />
         <entry key="..\:/Users/Max/AndroidStudioProjects/Reon/app/src/main/res/layout/activity_profile.xml" value="0.1" />
         <entry key="..\:/Users/Max/AndroidStudioProjects/Reon/app/src/main/res/layout/activity_profile_edit.xml" value="0.1" />
-        <entry key="..\:/Users/Max/AndroidStudioProjects/Reon/app/src/main/res/layout/activity_room.xml" value="0.1" />
-        <entry key="..\:/Users/Max/AndroidStudioProjects/Reon/app/src/main/res/layout/activity_room_edit.xml" value="0.1" />
+        <entry key="..\:/Users/Max/AndroidStudioProjects/Reon/app/src/main/res/layout/activity_room.xml" value="0.2" />
+        <entry key="..\:/Users/Max/AndroidStudioProjects/Reon/app/src/main/res/layout/activity_room_edit.xml" value="0.18" />
         <entry key="..\:/Users/Max/AndroidStudioProjects/Reon/app/src/main/res/layout/activity_room_info.xml" value="0.17980072463768115" />
+        <entry key="..\:/Users/Max/AndroidStudioProjects/Reon/app/src/main/res/layout/activity_sign_in.xml" value="0.21875" />
         <entry key="..\:/Users/Max/AndroidStudioProjects/Reon/app/src/main/res/layout/alert_rename_folder.xml" value="0.1" />
         <entry key="..\:/Users/Max/AndroidStudioProjects/Reon/app/src/main/res/layout/alert_title.xml" value="0.17527173913043478" />
         <entry key="..\:/Users/Max/AndroidStudioProjects/Reon/app/src/main/res/layout/fragment_room_edit.xml" value="0.17980072463768115" />
+        <entry key="..\:/Users/Max/AndroidStudioProjects/Reon/app/src/main/res/layout/list_item_file.xml" value="0.1" />
         <entry key="..\:/Users/Max/AndroidStudioProjects/Reon/app/src/main/res/layout/list_item_folder.xml" value="0.17980072463768115" />
         <entry key="..\:/Users/Max/AndroidStudioProjects/Reon/app/src/main/res/layout/list_item_room.xml" value="0.225" />
+        <entry key="..\:/Users/Max/AndroidStudioProjects/Reon/app/src/main/res/layout/recycler_view_item.xml" value="0.21875" />
         <entry key="..\:/Users/Max/AndroidStudioProjects/Reon/app/src/main/res/layout/toolbar.xml" value="0.20606884057971014" />
         <entry key="..\:/Users/Max/AndroidStudioProjects/Reon/app/src/main/res/menu/menu_dashboard.xml" value="0.24010416666666667" />
         <entry key="..\:/Users/Max/AndroidStudioProjects/Reon/app/src/main/res/menu/menu_folder.xml" value="0.240625" />
         <entry key="..\:/Users/Max/AndroidStudioProjects/Reon/app/src/main/res/menu/menu_room.xml" value="0.240625" />
+        <entry key="..\:/Users/Max/AndroidStudioProjects/Reon/app/src/main/res/xml/provider_paths.xml" value="0.1" />
       </map>
     </option>
   </component>

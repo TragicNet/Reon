@@ -1,50 +1,43 @@
 package com.example.reon;
 
+import android.Manifest;
 import android.app.Application;
-import android.util.Log;
+import android.content.pm.PackageManager;
+import android.os.Environment;
 
-import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
-import com.example.reon.classes.User;
-import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.example.reon.activities.FolderActivity;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Locale;
 
 public class Reon extends Application {
 
     private final String TAG = "reon_app";
 
-    private GoogleSignInClient googleSignInClient;
     private FirebaseDatabase database;
+    private FirebaseStorage storage;
+    public static final String rootPath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/Reon/";
 
     public SimpleDateFormat dateTimeFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm", Locale.US);
 
     @Override
     public void onCreate() {
         super.onCreate();
-        this.database = FirebaseDatabase.getInstance();
+        database = FirebaseDatabase.getInstance();
+        storage = FirebaseStorage.getInstance();
         database.setPersistenceEnabled(true);
     }
 
     public FirebaseAuth getAuth() {
         return FirebaseAuth.getInstance();
-    }
-
-    public GoogleSignInClient getGoogleSignInClient() {
-        return googleSignInClient;
-    }
-
-    public void setGoogleSignInClient(GoogleSignInClient googleSignInClient) {
-        this.googleSignInClient = googleSignInClient;
     }
 
     public FirebaseUser getCurrentUser() {
@@ -55,31 +48,5 @@ public class Reon extends Application {
         return database;
     }
 
-    public void initDatabase(FirebaseDatabase database) {
-        this.database = database;
-    }
-
-//    public User getUser() {
-//        DatabaseReference userRef = database.getReference("users").child(getCurrentUser().getUid());
-//        userRef.addListenerForSingleValueEvent(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(DataSnapshot dataSnapshot) {
-//                if(dataSnapshot.exists()) {
-//                    ArrayList<String> roomList = new ArrayList<>();
-//                    for(DataSnapshot ds : dataSnapshot.child("rooms").getChildren()) {
-//                        roomList.add((String) ds.getValue());
-//                    }
-//                    user = new User(dataSnapshot.getKey(), (String) dataSnapshot.child("email").getValue(), (String) dataSnapshot.child("name").getValue(), (String) dataSnapshot.child("about").getValue(), roomList);
-//                    //Log.d(TAG, "Created User: " + user);
-//                    return user;
-//                }
-//            }
-//
-//            @Override
-//            public void onCancelled(@NonNull DatabaseError databaseError) {
-//                Log.d(TAG, databaseError.getMessage());
-//            }
-//        });
-//    }
-
+    public FirebaseStorage getStorage() { return storage; }
 }

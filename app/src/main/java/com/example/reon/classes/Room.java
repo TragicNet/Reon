@@ -1,15 +1,13 @@
 package com.example.reon.classes;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.Locale;
 
 public class Room {
     private String id;
     private String created_at;
     private String name;
     private String description;
+    private String link;
     private ArrayList<String> adminList;
     private ArrayList<String> memberList;
     private ArrayList<String> folderList;
@@ -17,12 +15,14 @@ public class Room {
     public Room() {
     }
 
-    public Room(String id, String created_at, String name, String description, ArrayList<String> adminList, ArrayList<String> memberList, ArrayList<String> folderList) {
+    public Room(String id, String created_at, String name, String description, String link,
+           ArrayList<String> adminList, ArrayList<String> memberList, ArrayList<String> folderList) {
         super();
         this.id = id;
         this.created_at = created_at;
         this.name = name;
         this.description = description;
+        this.link = link;
         this.adminList = adminList;
         this.memberList = memberList;
         this.folderList = folderList;
@@ -57,6 +57,10 @@ public class Room {
     public void setDescription(String description) {
         this.description = description;
     }
+
+    public String getLink() { return link; }
+
+    public void setLink(String link) { this.link = link; }
 
     public ArrayList<String> getAdminList() {
         return adminList;

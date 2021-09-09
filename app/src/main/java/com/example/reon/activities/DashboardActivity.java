@@ -1,6 +1,7 @@
 package com.example.reon.activities;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -10,24 +11,26 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.recyclerview.widget.RecyclerView.Adapter;
 
 import com.example.reon.R;
 import com.example.reon.adapters.RoomListAdapter;
 import com.example.reon.classes.Room;
 import com.example.reon.databinding.ActivityDashboardBinding;
-import com.google.firebase.auth.FirebaseUser;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.dynamiclinks.FirebaseDynamicLinks;
+import com.google.firebase.dynamiclinks.PendingDynamicLinkData;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class DashboardActivity extends BaseActivity implements RoomListAdapter.OnRoomListener {
 
     private ActivityDashboardBinding binding;
-    private FirebaseUser firebaseUser;
 
     private DatabaseReference userRoomsRef, allRoomsRef;
 
@@ -36,7 +39,6 @@ public class DashboardActivity extends BaseActivity implements RoomListAdapter.O
     private RecyclerView roomList;
     private RoomListAdapter roomListAdapter;
     private RecyclerView.LayoutManager roomListLayoutManager;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,12 +53,79 @@ public class DashboardActivity extends BaseActivity implements RoomListAdapter.O
 
         initailizeRecyclerView();
 
+        checkForDynamicLinks(getIntent());
+
         binding.buttonCreateRoom.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(getApplicationContext(), RoomEditActivity.class));
             }
         });
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        checkForDynamicLinks(intent);
+    }
+
+    private void checkForDynamicLinks(Intent intent) {
+
+        FirebaseDynamicLinks.getInstance().getDynamicLink(intent).addOnSuccessListener(new OnSuccessListener<PendingDynamicLinkData>() {
+            @Override
+            public void onSuccess(PendingDynamicLinkData pendingDynamicLinkData) {
+                if (pendingDynamicLinkData != null) {
+                    Uri deepLink = pendingDynamicLinkData.getLink();
+                    if (deepLink != null) {
+                        String roomId = deepLink.getQueryParameter("roomid");
+                        Log.d(TAG, "roomid: " + roomId);
+                        enterRoom(roomId);
+                    }
+                }
+            }
+        });
+    }
+
+    private void enterRoom(String roomId) {
+        DatabaseReference roomRef = app.getDatabase().getReference("rooms").child(roomId);
+
+        userRoomsRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    if(!roomIds.contains(roomId)) {
+                        roomIds.add(roomId);
+                        userRoomsRef.setValue(roomIds);
+                    }
+
+                    ArrayList<String> members = new ArrayList<>();
+                    for(DataSnapshot ds : snapshot.child("memberList").getChildren()) {
+                        members.add((String) ds.getValue());
+                    }
+                    if(!members.contains(app.getCurrentUser().getUid())) {
+                        members.add(app.getCurrentUser().getUid());
+                        roomRef.child("memberList").setValue(members);
+                    }
+                    roomRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                            String roomName = (String) snapshot.child("name").getValue();
+                            Intent intent = new Intent(getApplicationContext(), RoomActivity.class);
+                            intent.putExtra("roomId", roomId);
+                            intent.putExtra("roomName", roomName);
+                            startActivity(intent);
+                        }
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {
+                            Log.d(TAG, error.getMessage());
+                        }
+                    });
+                }
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.d(TAG, error.getMessage());
+            }
+        });
+
     }
 
     private void initailizeRecyclerView() {
@@ -71,8 +140,8 @@ public class DashboardActivity extends BaseActivity implements RoomListAdapter.O
         userRoomsRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
+                roomIds.clear();
                 if(snapshot.exists()) {
-                    roomIds.clear();
                     for(DataSnapshot ds : snapshot.getChildren()) {
                         roomIds.add((String) ds.getValue());
                     }
@@ -80,23 +149,29 @@ public class DashboardActivity extends BaseActivity implements RoomListAdapter.O
                     allRoomsRef.addValueEventListener(new ValueEventListener() {
                         @Override
                         public void onDataChange(@NonNull DataSnapshot snapshot) {
-                            if(snapshot.exists() && !roomIds.isEmpty()) {
-                                rooms.clear();
-                                for (DataSnapshot ds : snapshot.getChildren()) {
-                                    if(roomIds.contains(ds.getKey())) {
-                                        //Map<String, Object> map = (Map<String, Object>) ds.getValue();
-                                        rooms.add(ds.getValue(Room.class));
+                            rooms.clear();
+                            if(snapshot.exists()) {
+                                if(!roomIds.isEmpty()) {
+                                    for (DataSnapshot ds : snapshot.getChildren()) {
+                                        if (roomIds.contains(ds.getKey())) {
+                                            //Map<String, Object> map = (Map<String, Object>) ds.getValue();
+                                            rooms.add(ds.getValue(Room.class));
+                                        }
                                     }
                                 }
-                                roomListAdapter.setRooms(rooms);
-                                roomListAdapter.notifyDataSetChanged();
                             }
+                            roomListAdapter.setRooms(rooms);
+                            roomListAdapter.notifyDataSetChanged();
                         }
                         @Override
                         public void onCancelled(@NonNull DatabaseError error) {
                             Log.d(TAG, error.getMessage());
                         }
                     });
+                } else {
+                    rooms.clear();
+                    roomListAdapter.setRooms(rooms);
+                    roomListAdapter.notifyDataSetChanged();
                 }
             }
             @Override
