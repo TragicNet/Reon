@@ -97,17 +97,18 @@ public class DashboardActivity extends BaseActivity implements RoomListAdapter.O
                         userRoomsRef.setValue(roomIds);
                     }
 
-                    ArrayList<String> members = new ArrayList<>();
-                    for(DataSnapshot ds : snapshot.child("memberList").getChildren()) {
-                        members.add((String) ds.getValue());
-                    }
-                    if(!members.contains(app.getCurrentUser().getUid())) {
-                        members.add(app.getCurrentUser().getUid());
-                        roomRef.child("memberList").setValue(members);
-                    }
                     roomRef.addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(@NonNull DataSnapshot snapshot) {
+                            ArrayList<String> members = new ArrayList<>();
+                            for(DataSnapshot ds : snapshot.child("memberList").getChildren()) {
+                                members.add((String) ds.getValue());
+                            }
+                            if(!members.contains(app.getCurrentUser().getUid())) {
+                                members.add(app.getCurrentUser().getUid());
+                                roomRef.child("memberList").setValue(members);
+                            }
+
                             String roomName = (String) snapshot.child("name").getValue();
                             Intent intent = new Intent(getApplicationContext(), RoomActivity.class);
                             intent.putExtra("roomId", roomId);
@@ -202,6 +203,7 @@ public class DashboardActivity extends BaseActivity implements RoomListAdapter.O
 
     @Override
     public void onRoomClick(int position) {
+        app.setRoomId(rooms.get(position).getId());
         Intent intent = new Intent(getApplicationContext(), RoomActivity.class);
         intent.putExtra("roomId", rooms.get(position).getId());
         intent.putExtra("roomName", rooms.get(position).getName());

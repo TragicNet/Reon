@@ -44,8 +44,7 @@ public class FileListAdapter extends RecyclerView.Adapter<FileListAdapter.ViewHo
     @NonNull
     @Override
     public FileListAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_file, parent
-                , false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_file, parent, false);
         return new FileListAdapter.ViewHolder(view, listener);
     }
 
@@ -70,7 +69,6 @@ public class FileListAdapter extends RecyclerView.Adapter<FileListAdapter.ViewHo
         String ext = "";
 
         if(file.getName().contains(".")) {
-            //String ext = MimeTypeMap.getFileExtensionFromUrl(file.getName());
             ext = file.getName().substring(file.getName().lastIndexOf("."));
         }
         Log.d("reon_FileListAdapter", "file: " + file.getName());
@@ -132,7 +130,7 @@ public class FileListAdapter extends RecyclerView.Adapter<FileListAdapter.ViewHo
         return files.size();
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {
         public TextView name;
         public TextView date;
         public ImageView image;
@@ -149,6 +147,7 @@ public class FileListAdapter extends RecyclerView.Adapter<FileListAdapter.ViewHo
             this.onFileListener = onFileListener;
 
             itemView.setOnClickListener(this);
+            itemView.setOnLongClickListener(this);
         }
 
         @Override
@@ -156,10 +155,14 @@ public class FileListAdapter extends RecyclerView.Adapter<FileListAdapter.ViewHo
             onFileListener.onFileClick(getAdapterPosition());
         }
 
+        @Override
+        public boolean onLongClick(View v) { onFileListener.onFileLongClick(getAdapterPosition()); return true; }
+
     }
 
     public interface OnFileListener {
         void onFileClick(int position);
+        void onFileLongClick(int position);
     }
 
 }

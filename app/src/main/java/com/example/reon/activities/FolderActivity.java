@@ -65,7 +65,7 @@ public class FolderActivity extends BaseActivity implements FileListAdapter.OnFi
     String folderId = "",
             folderName = "";
 
-    DatabaseReference allFilesRef, folderFilesRef;
+    DatabaseReference allFilesRef, folderFilesRef, roomAdminsRef;
 
     ArrayList<String> fileIds = new ArrayList<>();
     ArrayList<File> files = new ArrayList<>();
@@ -92,6 +92,7 @@ public class FolderActivity extends BaseActivity implements FileListAdapter.OnFi
 
         allFilesRef = app.getDatabase().getReference().child("files");
         folderFilesRef = app.getDatabase().getReference().child("folders").child(folderId).child("filesList");
+        roomAdminsRef = app.getDatabase().getReference("rooms").child("adminList");
 
         initailizeRecyclerView();
 
@@ -158,37 +159,6 @@ public class FolderActivity extends BaseActivity implements FileListAdapter.OnFi
         });
     }
 
-//    private Bitmap createThumbnail(File file) {
-//        java.io.File temp = new java.io.File((Reon.rootPath + file.getName()));
-//        String ext = "";
-//
-//        if(file.getName().contains(".")) {
-//            //String ext = MimeTypeMap.getFileExtensionFromUrl(file.getName());
-//            ext = file.getName().substring(file.getName().lastIndexOf("."));
-//        }
-//        Log.d("reon_FileListAdapter", "file: " + file.getName());
-//        Log.d("reon_FileListAdapter", "ext: " + ext);
-//        if(Arrays.asList(".png", ".jpg", ".jpeg", ".gif", ".bmp").contains(ext)) {
-//            Log.d("reon_FileListAdapter", "image");
-//            if (temp.exists()) {
-//                if (file.getThumbnail() == null) {
-//                    Log.d("reon_FileListAdapter", "path: " + temp.getPath());
-//
-//                    Bitmap bitmap = BitmapFactory.decodeFile(temp.getPath());
-//                    int origWidth = bitmap.getWidth();
-//                    int origHeight = bitmap.getHeight();
-//                    bitmap = Bitmap.createScaledBitmap(bitmap, origWidth / 10, origHeight / 10, false);
-//
-//                    if (bitmap != null) {
-//                        Log.d("reon_FileListAdapter", "set Bitmap");
-//                        return bitmap;
-//                    }
-//                }
-//            }
-//        }
-//        return null;
-//    }
-
     @Override
     public void onFileClick(int position) {
         File file = files.get(position);
@@ -200,6 +170,39 @@ public class FolderActivity extends BaseActivity implements FileListAdapter.OnFi
         } else {
             openFile(file);
         }
+    }
+
+    @Override
+    public void onFileLongClick(int position) {
+        File file = files.get(position);
+        if (app.getCurrentUser().getUid().equals(file.getUploaded_by()) || isAdmin()) {
+            Log.d(TAG, "long click: " + position);
+            AlertDialogBuilder builder = new AlertDialogBuilder(FolderActivity.this);
+
+            builder.setIcon(android.R.drawable.ic_dialog_alert);
+            builder.setTitle("Delete?");
+            builder.setMessage("Are you sure you want to delete this file?");
+            builder.setCancelable(true);
+            builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    Log.d(TAG, "deleting file: " + files.get(position).getName());
+                }
+            });
+            builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.cancel();
+                }
+            });
+
+            AlertDialog folderNameDialog = builder.create();
+            folderNameDialog.show();
+        }
+    }
+
+    private boolean isAdmin() {
+        return app.getAdminIds().contains(app.getCurrentUser().getUid());
     }
 
     private void openFile(File file) {
@@ -445,9 +448,4 @@ public class FolderActivity extends BaseActivity implements FileListAdapter.OnFi
         }
     }
 
-//    @Override
-//    protected void onDestroy() {
-//        super.onDestroy();
-//        unregisterReceiver(broadcastReceiver);
-//    }
 }

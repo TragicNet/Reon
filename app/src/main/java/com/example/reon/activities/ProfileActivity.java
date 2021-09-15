@@ -84,7 +84,7 @@ public class ProfileActivity extends BaseActivity {
                     public void onComplete(@NonNull Task<Void> task) {
                         Log.d(TAG, "Logged Out Google");
                         Log.d(TAG, "Current User: " + app.getCurrentUser());
-                        startActivity(new Intent(getApplicationContext(), DashboardActivity.class));
+                        startActivity(new Intent(getApplicationContext(), SignInActivity.class));
                         finishAffinity();
                     }
                 });

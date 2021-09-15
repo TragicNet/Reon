@@ -29,6 +29,7 @@ public class ProfileEditActivity extends BaseActivity {
 
     private ActivityProfileEditBinding binding;
     private boolean newUser;
+    private String email;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,6 +46,7 @@ public class ProfileEditActivity extends BaseActivity {
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 binding.editUserName.setText((String) dataSnapshot.child("name").getValue());
                 binding.editUserAbout.setText((String) dataSnapshot.child("about").getValue());
+                email = (String) dataSnapshot.child("email").getValue();
             }
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
@@ -66,6 +68,8 @@ public class ProfileEditActivity extends BaseActivity {
                     Map<String, Object> userMap = new HashMap<>();
                     userMap.put("name", name);
                     userMap.put("about", about);
+                    if(email == null)
+                        userMap.put("email", app.getCurrentUser().getEmail());
                     userRef.updateChildren(userMap);
                     if(newUser) {
                         startActivity(new Intent(getApplicationContext(), DashboardActivity.class));

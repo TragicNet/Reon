@@ -1,10 +1,15 @@
 package com.example.reon.activities;
 
 import android.app.Activity;
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
@@ -32,7 +37,8 @@ public class RoomInfoActivity extends BaseActivity {
     // temp
     String roomId = "",
             roomName = "",
-            roomDescription = "";
+            roomDescription = "",
+            roomLink = "";
 
     ActivityResultLauncher<Intent> roomEditActivityResultLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
@@ -48,6 +54,7 @@ public class RoomInfoActivity extends BaseActivity {
                     }
                 }
             });
+
 
     @Override
     public void onBackPressed() {
@@ -78,12 +85,24 @@ public class RoomInfoActivity extends BaseActivity {
                 Objects.requireNonNull(getSupportActionBar()).setTitle((String) dataSnapshot.child("name").getValue());
                 binding.textRoomName.setText((String) dataSnapshot.child("name").getValue());
                 binding.textRoomDescription.setText((String) dataSnapshot.child("description").getValue());
+                roomLink = (String) dataSnapshot.child("link").getValue();
                 roomName = (String) binding.textRoomName.getText();
                 roomDescription = (String) binding.textRoomDescription.getText();
+                binding.textRoomDescription.setMovementMethod(new ScrollingMovementMethod());
             }
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
                 Log.d(TAG, databaseError.getMessage());
+            }
+        });
+
+        binding.buttonCopyLink.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+                ClipData clip = ClipData.newPlainText(roomName, roomLink);
+                clipboard.setPrimaryClip(clip);
+                Toast.makeText(getApplicationContext(), "Copied link to Clipboard!", Toast.LENGTH_SHORT).show();
             }
         });
 

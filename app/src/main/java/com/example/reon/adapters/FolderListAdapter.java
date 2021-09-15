@@ -72,6 +72,7 @@ public class FolderListAdapter extends RecyclerView.Adapter<FolderListAdapter.Vi
 
     public interface OnFolderListener {
         void onFolderClick(int position);
+        void onFolderLongClick(int position);
     }
 
 }

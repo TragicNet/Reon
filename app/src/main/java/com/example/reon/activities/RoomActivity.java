@@ -39,7 +39,7 @@ public class RoomActivity extends BaseActivity implements FolderListAdapter.OnFo
 
     private ActivityRoomBinding binding;
 
-    private DatabaseReference roomFoldersRef, allFoldersRef;
+    private DatabaseReference roomFoldersRef, allFoldersRef, roomAdminsRef;
 
     String roomId = "",
             roomName = "";
@@ -79,6 +79,9 @@ public class RoomActivity extends BaseActivity implements FolderListAdapter.OnFo
 
         roomFoldersRef = app.getDatabase().getReference("rooms").child(roomId).child("folderList");
         allFoldersRef = app.getDatabase().getReference("folders");
+        roomAdminsRef = app.getDatabase().getReference("rooms").child(app.getRoomId()).child("adminList");
+
+        initializeAdminList();
 
         initailizeRecyclerView();
 
@@ -89,6 +92,24 @@ public class RoomActivity extends BaseActivity implements FolderListAdapter.OnFo
             }
         });
 
+    }
+
+    private void initializeAdminList() {
+        roomAdminsRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists() && !folderIds.isEmpty()) {
+                    app.getAdminIds().clear();
+                    for (DataSnapshot ds : snapshot.getChildren()) {
+                        app.getAdminIds().add((String) ds.getValue());
+                    }
+                }
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.d(TAG, error.getMessage());
+            }
+        });
     }
 
     private void initailizeRecyclerView() {
@@ -162,6 +183,11 @@ public class RoomActivity extends BaseActivity implements FolderListAdapter.OnFo
         intent.putExtra("folderId", folders.get(position).getId());
         intent.putExtra("folderName", folders.get(position).getName());
         startActivity(intent);
+    }
+
+    @Override
+    public void onFolderLongClick(int position) {
+
     }
 
     private void createNewFolder() {
