@@ -12,6 +12,7 @@
         <item name="android:windowAnimationStyle">@style/CustomActivityAnimation</item>
 
         <!-- Primary brand color. -->
+        <item name="colorAccent">@color/common.accent</item>
         <item name="colorPrimary">@color/common.accent</item>
         <item name="colorPrimaryVariant">@color/common.accent</item>
         <item name="colorOnPrimary">@color/black</item>

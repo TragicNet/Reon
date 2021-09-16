@@ -10,8 +10,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.OpenableColumns;
@@ -31,7 +29,6 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.core.content.FileProvider;
-import androidx.core.widget.ImageViewCompat;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -52,9 +49,7 @@ import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
-import java.net.URI;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Objects;
 
@@ -63,11 +58,13 @@ public class FolderActivity extends BaseActivity implements FileListAdapter.OnFi
     private ActivityFolderBinding binding;
 
     String folderId = "",
-            folderName = "";
+            folderName = "",
+            roomId = "";
 
-    DatabaseReference allFilesRef, folderFilesRef, roomAdminsRef;
+    DatabaseReference allFilesRef, folderFilesRef;
 
     ArrayList<String> fileIds = new ArrayList<>();
+    ArrayList<String> adminIds = new ArrayList<>();
     ArrayList<File> files = new ArrayList<>();
     private RecyclerView fileList;
     private FileListAdapter fileListAdapter;
@@ -84,6 +81,7 @@ public class FolderActivity extends BaseActivity implements FileListAdapter.OnFi
 
         Intent intent = getIntent();
         if(intent.hasExtra("folderId")) {
+            roomId = intent.getStringExtra("roomId");
             folderId = intent.getStringExtra("folderId");
             folderName = intent.getStringExtra("folderName");
         }
@@ -92,7 +90,8 @@ public class FolderActivity extends BaseActivity implements FileListAdapter.OnFi
 
         allFilesRef = app.getDatabase().getReference().child("files");
         folderFilesRef = app.getDatabase().getReference().child("folders").child(folderId).child("filesList");
-        roomAdminsRef = app.getDatabase().getReference("rooms").child("adminList");
+
+        initializeAdminList();
 
         initailizeRecyclerView();
 
@@ -108,6 +107,28 @@ public class FolderActivity extends BaseActivity implements FileListAdapter.OnFi
             }
         });
 
+    }
+
+    private void initializeAdminList() {
+
+        DatabaseReference roomAdminsRef = app.getDatabase().getReference("rooms").child(roomId).child("adminList");
+        roomAdminsRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()) {
+                    adminIds.clear();
+
+                    for (DataSnapshot ds : snapshot.getChildren()) {
+                        adminIds.add((String) ds.getValue());
+                    }
+                }
+
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.d(TAG, error.getMessage());
+            }
+        });
     }
 
     private void initailizeRecyclerView() {
@@ -133,7 +154,7 @@ public class FolderActivity extends BaseActivity implements FileListAdapter.OnFi
                         @Override
                         public void onDataChange(@NonNull DataSnapshot snapshot) {
                             if (snapshot.exists() && !fileIds.isEmpty()) {
-                                files = new ArrayList<>();
+                                files.clear();
                                 for (DataSnapshot ds : snapshot.getChildren()) {
                                     if (fileIds.contains(ds.getKey())) {
                                         files.add(ds.getValue(File.class));
@@ -176,7 +197,7 @@ public class FolderActivity extends BaseActivity implements FileListAdapter.OnFi
     public void onFileLongClick(int position) {
         File file = files.get(position);
         if (app.getCurrentUser().getUid().equals(file.getUploaded_by()) || isAdmin()) {
-            Log.d(TAG, "long click: " + position);
+
             AlertDialogBuilder builder = new AlertDialogBuilder(FolderActivity.this);
 
             builder.setIcon(android.R.drawable.ic_dialog_alert);
@@ -187,6 +208,38 @@ public class FolderActivity extends BaseActivity implements FileListAdapter.OnFi
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     Log.d(TAG, "deleting file: " + files.get(position).getName());
+
+                    StorageReference uploadsRef = app.getStorage().getReference().child("uploads");
+                    uploadsRef.child(file.getId()).delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(@NonNull Void aVoid) {
+                            allFilesRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                    if(snapshot.hasChild(file.getId())) {
+                                        allFilesRef.child(file.getId()).removeValue();
+                                    }
+                                    folderFilesRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                                        @Override
+                                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                            fileIds.remove(position);
+                                            folderFilesRef.setValue(fileIds);
+                                            fileListAdapter.removeThumbnail(position);
+                                        }
+                                        @Override
+                                        public void onCancelled(@NonNull DatabaseError error) {
+                                            Log.e(TAG, error.getMessage());
+                                        }
+                                    });
+                                    Toast.makeText(getApplicationContext(), "File Deleted", Toast.LENGTH_SHORT).show();
+                                }
+                                @Override
+                                public void onCancelled(@NonNull DatabaseError error) {
+                                    Log.e(TAG, error.getMessage());
+                                }
+                            });
+                        }
+                    });
                 }
             });
             builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
@@ -196,13 +249,13 @@ public class FolderActivity extends BaseActivity implements FileListAdapter.OnFi
                 }
             });
 
-            AlertDialog folderNameDialog = builder.create();
-            folderNameDialog.show();
+            AlertDialog deleteFileDialog = builder.create();
+            deleteFileDialog.show();
         }
     }
 
     private boolean isAdmin() {
-        return app.getAdminIds().contains(app.getCurrentUser().getUid());
+        return adminIds.contains(app.getCurrentUser().getUid());
     }
 
     private void openFile(File file) {
@@ -305,8 +358,8 @@ public class FolderActivity extends BaseActivity implements FileListAdapter.OnFi
 
                                 String fileId = allFilesRef.push().getKey();
 
-                                StorageReference uploadsRef = app.getStorage().getReference().child("uploads").child(fileId);
-                                uploadsRef.putFile(Uri.parse(filePath)).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                                StorageReference uploadsRef = app.getStorage().getReference("uploads");
+                                uploadsRef.child(fileId).putFile(Uri.parse(filePath)).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                                     @Override
                                     public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
 

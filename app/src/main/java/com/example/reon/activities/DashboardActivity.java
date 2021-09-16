@@ -203,7 +203,6 @@ public class DashboardActivity extends BaseActivity implements RoomListAdapter.O
 
     @Override
     public void onRoomClick(int position) {
-        app.setRoomId(rooms.get(position).getId());
         Intent intent = new Intent(getApplicationContext(), RoomActivity.class);
         intent.putExtra("roomId", rooms.get(position).getId());
         intent.putExtra("roomName", rooms.get(position).getName());

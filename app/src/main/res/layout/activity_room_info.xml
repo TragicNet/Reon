@@ -86,7 +86,7 @@
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/linkContainer"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
                 android:background="@drawable/background_view"
@@ -101,8 +101,10 @@
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:labelFor="@+id/button_copy_link"
-                    android:text="Copy Invite Link: "
+                    android:text="Copy Invite Link"
                     app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@+id/button_copy_link"
+                    app:layout_constraintHorizontal_bias="0.0"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 
@@ -120,11 +122,23 @@
                     android:textColor="?common.accent"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toEndOf="@+id/textView"
                     app:layout_constraintTop_toTopOf="parent" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
+            <Button
+                android:id="@+id/button_leaveRoom"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="30dp"
+                android:background="@drawable/background_button"
+                android:paddingHorizontal="15dp"
+                android:text="Leave Room"
+                android:textColor="@color/white"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/linkContainer" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

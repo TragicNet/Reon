@@ -43,7 +43,6 @@ public abstract class BaseActivity extends AppCompatActivity {
 
         this.app = ((Reon) this.getApplication());
         if(!this.getClass().equals(SignInActivity.class) && !this.getClass().equals(ProfileEditActivity.class)) {
-            Log.d(TAG, "Checking user");
             checkUser();
         }
         // Auto Hide Navigation buttons
@@ -81,8 +80,9 @@ public abstract class BaseActivity extends AppCompatActivity {
                     //Log.d(TAG, "Username: " + name);
                     // go to sign in activity if no name
                     if(name == null) {
-                        startActivity(new Intent(getApplicationContext(), SignInActivity.class));
-                        finishAffinity();
+                        Intent intent = new Intent(getApplicationContext(), DashboardActivity.class);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        startActivity(intent);
                     }
                 }
                 @Override

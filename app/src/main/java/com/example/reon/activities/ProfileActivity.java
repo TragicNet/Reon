@@ -2,6 +2,7 @@ package com.example.reon.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.View;
 
@@ -58,6 +59,7 @@ public class ProfileActivity extends BaseActivity {
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 binding.textUserName.setText((String) dataSnapshot.child("name").getValue());
                 binding.textUserAbout.setText((String) dataSnapshot.child("about").getValue());
+                binding.textUserAbout.setMovementMethod(new ScrollingMovementMethod());
             }
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {

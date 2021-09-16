@@ -47,7 +47,7 @@ public class FolderListAdapter extends RecyclerView.Adapter<FolderListAdapter.Vi
         return folders.size();
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {
         public TextView name;
         public ImageView image;
 
@@ -62,12 +62,16 @@ public class FolderListAdapter extends RecyclerView.Adapter<FolderListAdapter.Vi
             this.onFolderListener = onFolderListener;
 
             itemView.setOnClickListener(this);
+            itemView.setOnLongClickListener(this);
         }
 
         @Override
         public void onClick(View v) {
             onFolderListener.onFolderClick(getAdapterPosition());
         }
+
+        @Override
+        public boolean onLongClick(View v) { onFolderListener.onFolderLongClick(getAdapterPosition()); return true; }
     }
 
     public interface OnFolderListener {

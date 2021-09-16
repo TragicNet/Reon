@@ -19,16 +19,19 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import com.example.reon.R;
 import com.example.reon.adapters.FolderListAdapter;
 import com.example.reon.classes.AlertDialogBuilder;
 import com.example.reon.classes.Folder;
 import com.example.reon.databinding.ActivityRoomBinding;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.StorageReference;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -39,12 +42,13 @@ public class RoomActivity extends BaseActivity implements FolderListAdapter.OnFo
 
     private ActivityRoomBinding binding;
 
-    private DatabaseReference roomFoldersRef, allFoldersRef, roomAdminsRef;
+    private DatabaseReference roomFoldersRef, allFoldersRef;
 
     String roomId = "",
             roomName = "";
 
     ArrayList<String> folderIds = new ArrayList<>();
+    ArrayList<String> adminIds = new ArrayList<>();
     ArrayList<Folder> folders = new ArrayList<>();
     private RecyclerView folderList;
     private FolderListAdapter folderListAdapter;
@@ -79,7 +83,6 @@ public class RoomActivity extends BaseActivity implements FolderListAdapter.OnFo
 
         roomFoldersRef = app.getDatabase().getReference("rooms").child(roomId).child("folderList");
         allFoldersRef = app.getDatabase().getReference("folders");
-        roomAdminsRef = app.getDatabase().getReference("rooms").child(app.getRoomId()).child("adminList");
 
         initializeAdminList();
 
@@ -95,13 +98,15 @@ public class RoomActivity extends BaseActivity implements FolderListAdapter.OnFo
     }
 
     private void initializeAdminList() {
+
+        DatabaseReference roomAdminsRef = app.getDatabase().getReference("rooms").child(roomId).child("adminList");
         roomAdminsRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (snapshot.exists() && !folderIds.isEmpty()) {
-                    app.getAdminIds().clear();
+                if (snapshot.exists()) {
+                    adminIds.clear();
                     for (DataSnapshot ds : snapshot.getChildren()) {
-                        app.getAdminIds().add((String) ds.getValue());
+                        adminIds.add((String) ds.getValue());
                     }
                 }
             }
@@ -133,7 +138,7 @@ public class RoomActivity extends BaseActivity implements FolderListAdapter.OnFo
                         @Override
                         public void onDataChange(@NonNull DataSnapshot snapshot) {
                             if (snapshot.exists() && !folderIds.isEmpty()) {
-                                folders = new ArrayList<>();
+                                folders.clear();
                                 for (DataSnapshot ds : snapshot.getChildren()) {
                                     if (folderIds.contains(ds.getKey())) {
                                         folders.add(ds.getValue(Folder.class));
@@ -180,6 +185,7 @@ public class RoomActivity extends BaseActivity implements FolderListAdapter.OnFo
     @Override
     public void onFolderClick(int position) {
         Intent intent = new Intent(getApplicationContext(), FolderActivity.class);
+        intent.putExtra("roomId", roomId);
         intent.putExtra("folderId", folders.get(position).getId());
         intent.putExtra("folderName", folders.get(position).getName());
         startActivity(intent);
@@ -187,7 +193,82 @@ public class RoomActivity extends BaseActivity implements FolderListAdapter.OnFo
 
     @Override
     public void onFolderLongClick(int position) {
+        Folder folder = folders.get(position);
+        if (isAdmin()) {
+            AlertDialogBuilder builder = new AlertDialogBuilder(RoomActivity.this);
 
+            builder.setIcon(android.R.drawable.ic_dialog_alert);
+            builder.setTitle("Delete?");
+            builder.setMessage("Are you sure you want to delete this folder?");
+            builder.setCancelable(true);
+            builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    Log.d(TAG, "deleting file: " + folders.get(position).getName());
+
+                    allFoldersRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                            if(snapshot.hasChild(folder.getId())) {
+                                allFoldersRef.child(folder.getId()).removeValue();
+                            }
+                            roomFoldersRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(@NonNull DataSnapshot snapshot) {
+
+                                    StorageReference uploadsRef = app.getStorage().getReference().child("uploads");
+
+                                    DatabaseReference allFilesRef = app.getDatabase().getReference().child("files");
+                                    allFilesRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                                        @Override
+                                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                            Log.d(TAG, "deleting files: " + folder.getFilesList());
+                                            for (DataSnapshot ds : snapshot.getChildren()) {
+                                                if (folder.getFilesList().contains(ds.getKey())) {
+                                                    Log.d(TAG, "found: " + ds.getKey());
+                                                    allFilesRef.child(Objects.requireNonNull(ds.getKey())).removeValue();
+                                                    uploadsRef.child(ds.getKey()).delete();
+                                                }
+                                            }
+                                        }
+
+                                        @Override
+                                        public void onCancelled(@NonNull DatabaseError error) {
+                                            Log.e(TAG, error.getMessage());
+                                        }
+                                    });
+
+                                    folderIds.remove(position);
+                                    roomFoldersRef.setValue(folderIds);
+                                }
+                                @Override
+                                public void onCancelled(@NonNull DatabaseError error) {
+                                    Log.e(TAG, error.getMessage());
+                                }
+                            });
+                            Toast.makeText(getApplicationContext(), "Folder Deleted", Toast.LENGTH_SHORT).show();
+                        }
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {
+                            Log.e(TAG, error.getMessage());
+                        }
+                    });
+                }
+            });
+            builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.cancel();
+                }
+            });
+
+            AlertDialog deleteFolderDialog = builder.create();
+            deleteFolderDialog.show();
+        }
+    }
+
+    private boolean isAdmin() {
+        return adminIds.contains(app.getCurrentUser().getUid());
     }
 
     private void createNewFolder() {

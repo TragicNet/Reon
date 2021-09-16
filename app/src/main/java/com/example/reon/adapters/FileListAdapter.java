@@ -1,6 +1,7 @@
 package com.example.reon.adapters;
 
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.Log;
@@ -51,6 +52,7 @@ public class FileListAdapter extends RecyclerView.Adapter<FileListAdapter.ViewHo
     @Override
     public void onBindViewHolder(@NonNull FileListAdapter.ViewHolder holder, int position) {
         File file = files.get(position);
+        Log.d("reon_FileListAdapter", "name: " + file.getName());
         java.io.File temp = new java.io.File((Reon.rootPath + file.getName()));
         ImageView downloadIcon = holder.itemView.findViewById(R.id.file_item_download);
         if (temp.exists()) {
@@ -71,27 +73,24 @@ public class FileListAdapter extends RecyclerView.Adapter<FileListAdapter.ViewHo
         if(file.getName().contains(".")) {
             ext = file.getName().substring(file.getName().lastIndexOf("."));
         }
-        Log.d("reon_FileListAdapter", "file: " + file.getName());
-        Log.d("reon_FileListAdapter", "ext: " + ext);
         if(Arrays.asList(".png", ".jpg", ".jpeg", ".gif", ".bmp").contains(ext)) {
-            Log.d("reon_FileListAdapter", "image");
+            boolean setImage = false;
             if(temp.exists()) {
                 if(file.getThumbnail() == null) {
                     Log.d("reon_FileListAdapter", "path: " + temp.getPath());
                     Bitmap bitmap = getPreview(temp.getPath());
 
                     if(bitmap != null) {
-                        Log.d("reon_FileListAdapter", "set Bitmap");
                         file.setThumbnail(bitmap);
                         holder.image.setImageBitmap(bitmap);
-                        ImageViewCompat.setImageTintList(holder.image, null);
-                    } else {
-                        holder.image.setImageResource(R.drawable.ic_image);
+//                        ImageViewCompat.setImageTintList(holder.image, null);
+                        setImage = true;
                     }
                 }
-            } else {
+            }
+            if (!setImage){
                 holder.image.setImageResource(R.drawable.ic_image);
-                Log.d("reon_FileListAdapter", holder.image.getDrawable().getIntrinsicWidth() + ", " + holder.image.getDrawable().getIntrinsicHeight());
+//                ImageViewCompat.setImageTintList(holder.image, ColorStateList.valueOf(android.R.attr.colorAccent));
             }
         } else if(Arrays.asList(".mp3", ".wav", ".ogg", ".midi").contains(ext)) {
             holder.image.setImageResource(R.drawable.ic_audio);
@@ -128,6 +127,10 @@ public class FileListAdapter extends RecyclerView.Adapter<FileListAdapter.ViewHo
     @Override
     public int getItemCount() {
         return files.size();
+    }
+
+    public void removeThumbnail(int position) {
+        files.get(position).setThumbnail(null);
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {

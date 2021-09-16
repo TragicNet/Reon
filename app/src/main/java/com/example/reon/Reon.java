@@ -32,9 +32,6 @@ public class Reon extends Application {
 
     public SimpleDateFormat dateTimeFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm", Locale.US);
 
-    private ArrayList<String> adminIds = new ArrayList<>();
-    private String roomId = null;
-
     @Override
     public void onCreate() {
         super.onCreate();
@@ -62,17 +59,5 @@ public class Reon extends Application {
                 = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
         return activeNetworkInfo != null && activeNetworkInfo.isConnected();
-    }
-
-    public String getRoomId() { return roomId; }
-
-    public void setRoomId(String roomId) { this.roomId = roomId; }
-
-    public ArrayList<String> getAdminIds() {
-        return adminIds;
-    }
-
-    public void setAdminIds(ArrayList<String> adminIds) {
-        this.adminIds = adminIds;
     }
 }

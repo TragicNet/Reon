@@ -13,6 +13,7 @@ import androidx.annotation.NonNull;
 import com.example.reon.classes.Room;
 import com.example.reon.databinding.ActivityRoomEditBinding;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -78,22 +79,18 @@ public class RoomEditActivity extends BaseActivity {
                 } else {
                     if (newRoom) {
                         createNewRoom(name, description);
-                        Intent intent = new Intent(getApplicationContext(), RoomActivity.class);
-                        intent.putExtra("roomId", roomId);
-                        intent.putExtra("roomName", name);
-                        startActivity(intent);
+                    } else {
+                        DatabaseReference roomRef = app.getDatabase().getReference("rooms").child(roomId);
+                        Map<String, Object> roomMap = new HashMap<>();
+                        roomMap.put("name", name);
+                        roomMap.put("description", description);
+                        roomRef.updateChildren(roomMap);
+                        Intent intent = new Intent();
+                        intent.putExtra("name", name);
+                        intent.putExtra("description", description);
+                        setResult(RESULT_OK, intent);
                         finish();
                     }
-                    DatabaseReference roomRef = app.getDatabase().getReference("rooms").child(roomId);
-                    Map<String, Object> roomMap = new HashMap<>();
-                    roomMap.put("name", name);
-                    roomMap.put("description", description);
-                    roomRef.updateChildren(roomMap);
-                    Intent intent = new Intent();
-                    intent.putExtra("name", name);
-                    intent.putExtra("description", description);
-                    setResult(RESULT_OK, intent);
-                    finish();
                 }
             }
         });
@@ -125,12 +122,8 @@ public class RoomEditActivity extends BaseActivity {
         Task<ShortDynamicLink> dynamicLink = FirebaseDynamicLinks.getInstance().createDynamicLink()
                 .setLink(Uri.parse(link))
                 .setDomainUriPrefix("https://reon1.page.link")
-                .setAndroidParameters(new
-                        DynamicLink.AndroidParameters.Builder().build())
-                .setSocialMetaTagParameters(
-                        new DynamicLink.SocialMetaTagParameters.Builder()
-                                .setTitle(name)
-                                .build())
+                .setAndroidParameters(new DynamicLink.AndroidParameters.Builder().build())
+                .setSocialMetaTagParameters(new DynamicLink.SocialMetaTagParameters.Builder().setTitle(name).build())
                 .buildShortDynamicLink().addOnCompleteListener(new OnCompleteListener<ShortDynamicLink>() {
                     @Override
                     public void onComplete(@NonNull Task<ShortDynamicLink> task) {
@@ -141,10 +134,8 @@ public class RoomEditActivity extends BaseActivity {
                             String userId = app.getCurrentUser().getUid();
                             adminList.add(userId);
                             memberList.add(userId);
-                            Room room = new Room(roomId, app.dateTimeFormat.format(Calendar.getInstance().getTime())
-                                    , name, description, dynamicLinkUri.toString(),
-                                    adminList,
-                                    memberList, folderList);
+                            Room room = new Room(roomId, app.dateTimeFormat.format(Calendar.getInstance().getTime()),
+                                    name, description, dynamicLinkUri.toString(), adminList, memberList, folderList);
 
                             roomsRef.child(roomId).setValue(room);
 
@@ -159,6 +150,11 @@ public class RoomEditActivity extends BaseActivity {
                                     userRooms.add(roomId);
                                     userRoomsRef.setValue(userRooms);
 
+                                    Intent intent = new Intent(RoomEditActivity.this, RoomActivity.class);
+                                    intent.putExtra("roomId", roomId);
+                                    intent.putExtra("roomName", name);
+                                    startActivity(intent);
+                                    finish();
                                 }
 
                                 @Override
@@ -169,6 +165,7 @@ public class RoomEditActivity extends BaseActivity {
                         }
                     }
                 });
+
 //                .setLink(link)
 //                .setDomainUriPrefix(Constants.DYNAMIC_LINK_DOMAIN)
 //                .setAndroidParameters(new DynamicLink.AndroidParameters.Builder().build())
