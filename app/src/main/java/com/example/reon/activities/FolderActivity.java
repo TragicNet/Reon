@@ -142,43 +142,47 @@ public class FolderActivity extends BaseActivity implements FileListAdapter.OnFi
                 FolderActivity.this);
         fileList.setAdapter(fileListAdapter);
 
-        folderFilesRef.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (snapshot.exists()) {
-                    fileIds.clear();
-                    for (DataSnapshot ds : snapshot.getChildren()) {
-                        fileIds.add((String) ds.getValue());
-                    }
-                    allFilesRef.addValueEventListener(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(@NonNull DataSnapshot snapshot) {
-                            if (snapshot.exists() && !fileIds.isEmpty()) {
-                                files.clear();
-                                for (DataSnapshot ds : snapshot.getChildren()) {
-                                    if (fileIds.contains(ds.getKey())) {
-                                        files.add(ds.getValue(File.class));
-//                                        files.get(files.size() - 1).setThumbnail(createThumbnail(files.get(files.size() - 1)));
-                                    }
-                                }
-                                fileListAdapter.setFiles(files);
-                                fileListAdapter.notifyDataSetChanged();
-                            }
-                        }
-                        @Override
-                        public void onCancelled(@NonNull DatabaseError error) {
-                            Log.d(TAG, error.getMessage());
-                        }
-                    });
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                Log.d(TAG, error.getMessage());
-            }
-        });
+        folderFilesRef.addValueEventListener(folderFilesListener);
     }
+
+    ValueEventListener folderFilesListener = new ValueEventListener() {
+        @Override
+        public void onDataChange(@NonNull DataSnapshot snapshot) {
+            if (snapshot.exists()) {
+                fileIds.clear();
+                for (DataSnapshot ds : snapshot.getChildren()) {
+                    fileIds.add((String) ds.getValue());
+                }
+                allFilesRef.addListenerForSingleValueEvent(allFilesListener);
+            }
+        }
+
+        @Override
+        public void onCancelled(@NonNull DatabaseError error) {
+            Log.d(TAG, error.getMessage());
+        }
+    };
+
+    ValueEventListener allFilesListener = new ValueEventListener() {
+        @Override
+        public void onDataChange(@NonNull DataSnapshot snapshot) {
+            if (snapshot.exists() && !fileIds.isEmpty()) {
+                files.clear();
+                for (DataSnapshot ds : snapshot.getChildren()) {
+                    if (fileIds.contains(ds.getKey())) {
+                        files.add(ds.getValue(File.class));
+//                                        files.get(files.size() - 1).setThumbnail(createThumbnail(files.get(files.size() - 1)));
+                    }
+                }
+                fileListAdapter.setFiles(files);
+                fileListAdapter.notifyDataSetChanged();
+            }
+        }
+        @Override
+        public void onCancelled(@NonNull DatabaseError error) {
+            Log.d(TAG, error.getMessage());
+        }
+    };
 
     @Override
     public void onFileClick(int position) {
@@ -209,6 +213,8 @@ public class FolderActivity extends BaseActivity implements FileListAdapter.OnFi
                 public void onClick(DialogInterface dialog, int which) {
                     Log.d(TAG, "deleting file: " + files.get(position).getName());
 
+                    folderFilesRef.removeEventListener(folderFilesListener);
+
                     StorageReference uploadsRef = app.getStorage().getReference().child("uploads");
                     uploadsRef.child(file.getId()).delete().addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
@@ -231,6 +237,7 @@ public class FolderActivity extends BaseActivity implements FileListAdapter.OnFi
                                             Log.e(TAG, error.getMessage());
                                         }
                                     });
+                                    folderFilesRef.addValueEventListener(folderFilesListener);
                                     Toast.makeText(getApplicationContext(), "File Deleted", Toast.LENGTH_SHORT).show();
                                 }
                                 @Override

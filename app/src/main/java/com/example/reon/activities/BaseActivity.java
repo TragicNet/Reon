@@ -63,7 +63,7 @@ public abstract class BaseActivity extends AppCompatActivity {
     public void init() {
         init("Reon", false);
     }
-
+    
     private void checkUser() {
         // go to profile if logged
         if (app.getCurrentUser() == null) {

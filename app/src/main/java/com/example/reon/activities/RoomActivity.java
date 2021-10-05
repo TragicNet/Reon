@@ -126,43 +126,47 @@ public class RoomActivity extends BaseActivity implements FolderListAdapter.OnFo
         folderListAdapter = new FolderListAdapter(getApplicationContext(), folders, RoomActivity.this);
         folderList.setAdapter(folderListAdapter);
 
-        roomFoldersRef.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (snapshot.exists()) {
-                    folderIds.clear();
-                    for (DataSnapshot ds : snapshot.getChildren()) {
-                        folderIds.add((String) ds.getValue());
-                    }
-                    allFoldersRef.addValueEventListener(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(@NonNull DataSnapshot snapshot) {
-                            if (snapshot.exists() && !folderIds.isEmpty()) {
-                                folders.clear();
-                                for (DataSnapshot ds : snapshot.getChildren()) {
-                                    if (folderIds.contains(ds.getKey())) {
-                                        folders.add(ds.getValue(Folder.class));
-                                    }
-                                }
-                                folderListAdapter.setFolders(folders);
-                                folderListAdapter.notifyDataSetChanged();
-                            }
-                        }
-                        @Override
-                        public void onCancelled(@NonNull DatabaseError error) {
-                            Log.d(TAG, error.getMessage());
-                        }
-                    });
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                Log.d(TAG, error.getMessage());
-            }
-        });
+        roomFoldersRef.addValueEventListener(roomFoldersListener);
     }
 
+    ValueEventListener roomFoldersListener = new ValueEventListener() {
+        @Override
+        public void onDataChange(@NonNull DataSnapshot snapshot) {
+            if (snapshot.exists()) {
+                folderIds.clear();
+                for (DataSnapshot ds : snapshot.getChildren()) {
+                    folderIds.add((String) ds.getValue());
+                }
+                allFoldersRef.addListenerForSingleValueEvent(allFoldersListener);
+            }
+        }
+
+        @Override
+        public void onCancelled(@NonNull DatabaseError error) {
+            Log.d(TAG, error.getMessage());
+        }
+    };
+    
+    ValueEventListener allFoldersListener = new ValueEventListener() {
+        @Override
+        public void onDataChange(@NonNull DataSnapshot snapshot) {
+            if (snapshot.exists() && !folderIds.isEmpty()) {
+                folders.clear();
+                for (DataSnapshot ds : snapshot.getChildren()) {
+                    if (folderIds.contains(ds.getKey())) {
+                        folders.add(ds.getValue(Folder.class));
+                    }
+                }
+                folderListAdapter.setFolders(folders);
+                folderListAdapter.notifyDataSetChanged();
+            }
+        }
+        @Override
+        public void onCancelled(@NonNull DatabaseError error) {
+            Log.d(TAG, error.getMessage());
+        }
+    };
+    
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_room, menu);
@@ -204,8 +208,10 @@ public class RoomActivity extends BaseActivity implements FolderListAdapter.OnFo
             builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                    Log.d(TAG, "deleting file: " + folders.get(position).getName());
+                    Log.d(TAG, "deleting folder: " + folders.get(position).getName());
 
+                    roomFoldersRef.removeEventListener(roomFoldersListener);
+                    
                     allFoldersRef.addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -223,11 +229,13 @@ public class RoomActivity extends BaseActivity implements FolderListAdapter.OnFo
                                         @Override
                                         public void onDataChange(@NonNull DataSnapshot snapshot) {
                                             Log.d(TAG, "deleting files: " + folder.getFilesList());
-                                            for (DataSnapshot ds : snapshot.getChildren()) {
-                                                if (folder.getFilesList().contains(ds.getKey())) {
-                                                    Log.d(TAG, "found: " + ds.getKey());
-                                                    allFilesRef.child(Objects.requireNonNull(ds.getKey())).removeValue();
-                                                    uploadsRef.child(ds.getKey()).delete();
+                                            if (folder.getFilesList() != null) {
+                                                for (DataSnapshot ds : snapshot.getChildren()) {
+                                                    if (folder.getFilesList().contains(ds.getKey())) {
+                                                        Log.d(TAG, "found: " + ds.getKey());
+                                                        allFilesRef.child(Objects.requireNonNull(ds.getKey())).removeValue();
+                                                        uploadsRef.child(ds.getKey()).delete();
+                                                    }
                                                 }
                                             }
                                         }
@@ -246,6 +254,9 @@ public class RoomActivity extends BaseActivity implements FolderListAdapter.OnFo
                                     Log.e(TAG, error.getMessage());
                                 }
                             });
+
+                            roomFoldersRef.addValueEventListener(roomFoldersListener);
+
                             Toast.makeText(getApplicationContext(), "Folder Deleted", Toast.LENGTH_SHORT).show();
                         }
                         @Override

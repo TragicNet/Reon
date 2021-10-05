@@ -46,7 +46,7 @@ public class RoomInfoActivity extends BaseActivity {
 
     DatabaseReference roomRef;
 
-    Room room;
+    Room room = new Room();
 
     ActivityResultLauncher<Intent> roomEditActivityResultLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
@@ -140,7 +140,7 @@ public class RoomInfoActivity extends BaseActivity {
                             userRoomsRef.addListenerForSingleValueEvent(new ValueEventListener() {
                                 @Override
                                 public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                    ArrayList<String> roomList = new ArrayList<String>();
+                                    ArrayList<String> roomList = new ArrayList<>();
                                     for (DataSnapshot ds : snapshot.getChildren()) {
                                         roomList.add((String) ds.getValue());
                                     }
@@ -152,7 +152,7 @@ public class RoomInfoActivity extends BaseActivity {
                                     roomMembersRef.addListenerForSingleValueEvent(new ValueEventListener() {
                                         @Override
                                         public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                            ArrayList<String> memberList = new ArrayList<String>();
+                                            ArrayList<String> memberList = new ArrayList<>();
                                             for (DataSnapshot ds : snapshot.getChildren()) {
                                                 memberList.add((String) ds.getValue());
                                             }
@@ -164,7 +164,7 @@ public class RoomInfoActivity extends BaseActivity {
                                             roomAdminsRef.addListenerForSingleValueEvent(new ValueEventListener() {
                                                 @Override
                                                 public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                                    ArrayList<String> adminList = new ArrayList<String>();
+                                                    ArrayList<String> adminList = new ArrayList<>();
                                                     for (DataSnapshot ds : snapshot.getChildren()) {
                                                         adminList.add((String) ds.getValue());
                                                     }
@@ -219,66 +219,74 @@ public class RoomInfoActivity extends BaseActivity {
                             roomRef.addListenerForSingleValueEvent(new ValueEventListener() {
                                 @Override
                                 public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                    room = new Room();
                                     room = snapshot.getValue(Room.class);
 
-
-                                    ArrayList<String> memberList = new ArrayList<>();
+                                    ArrayList<String> memberList;
                                     memberList = room.getMemberList();
-                                    for (String member : memberList) {
-                                        DatabaseReference userRoomsRef = app.getDatabase().getReference("users").child(member).child("roomList");
-                                        userRoomsRef.addListenerForSingleValueEvent(new ValueEventListener() {
-                                            @Override
-                                            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                                ArrayList<String> roomList = new ArrayList<String>();
-                                                for (DataSnapshot ds : snapshot.getChildren()) {
-                                                    roomList.add((String) ds.getValue());
+                                    if (memberList != null) {
+                                        for (String member : memberList) {
+                                            DatabaseReference userRoomsRef = app.getDatabase().getReference("users").child(member).child("roomList");
+                                            userRoomsRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                                                @Override
+                                                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                                    ArrayList<String> roomList = new ArrayList<>();
+                                                    for (DataSnapshot ds : snapshot.getChildren()) {
+                                                        roomList.add((String) ds.getValue());
+                                                    }
+
+                                                    if (roomList.remove(roomId)) {
+                                                        userRoomsRef.setValue(roomList);
+                                                    }
                                                 }
-                                                if(roomList.remove(roomId)) {
-                                                    userRoomsRef.setValue(roomList);
+
+                                                @Override
+                                                public void onCancelled(@NonNull DatabaseError error) {
+                                                    Log.e(TAG, error.getMessage());
                                                 }
-                                            }
-                                            @Override
-                                            public void onCancelled(@NonNull DatabaseError error) {
-                                                Log.e(TAG, error.getMessage());
-                                            }
-                                        });
+                                            });
+                                        }
                                     }
 
-                                    ArrayList<String> folderList = new ArrayList<>();
+                                    ArrayList<String> folderList;
                                     folderList = room.getFolderList();
-                                    for (String folder : folderList) {
-                                        DatabaseReference folderRef = app.getDatabase().getReference("folders").child(folder);
-                                        folderRef.addListenerForSingleValueEvent(new ValueEventListener() {
-                                            @Override
-                                            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                                Folder folder = snapshot.getValue(Folder.class);
+                                    if(folderList != null) {
+                                        for (String folder : folderList) {
+                                            DatabaseReference folderRef = app.getDatabase().getReference("folders").child(folder);
+                                            folderRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                                                @Override
+                                                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                                    Folder folder = snapshot.getValue(Folder.class);
 
-                                                StorageReference uploadsRef = app.getStorage().getReference().child("uploads");
-                                                DatabaseReference allFilesRef = app.getDatabase().getReference().child("files");
-                                                allFilesRef.addListenerForSingleValueEvent(new ValueEventListener() {
-                                                    @Override
-                                                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                                        for (DataSnapshot ds : snapshot.getChildren()) {
+                                                    StorageReference uploadsRef = app.getStorage().getReference().child("uploads");
+                                                    DatabaseReference allFilesRef = app.getDatabase().getReference().child("files");
+                                                    allFilesRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                                                        @Override
+                                                        public void onDataChange(@NonNull DataSnapshot snapshot) {
                                                             assert folder != null;
-                                                            if (folder.getFilesList().contains(ds.getKey())) {
-                                                                allFilesRef.child(Objects.requireNonNull(ds.getKey())).removeValue();
-                                                                uploadsRef.child(Objects.requireNonNull(ds.getKey())).delete();
+                                                            if (folder.getFilesList() != null) {
+                                                                for (DataSnapshot ds : snapshot.getChildren()) {
+                                                                    if (folder.getFilesList().contains(ds.getKey())) {
+                                                                        allFilesRef.child(Objects.requireNonNull(ds.getKey())).removeValue();
+                                                                        uploadsRef.child(Objects.requireNonNull(ds.getKey())).delete();
+                                                                    }
+                                                                }
                                                             }
                                                         }
-                                                    }
-                                                    @Override
-                                                    public void onCancelled(@NonNull DatabaseError error) {
-                                                        Log.e(TAG, error.getMessage());
-                                                    }
-                                                });
-                                            }
-                                            @Override
-                                            public void onCancelled(@NonNull DatabaseError error) {
-                                                Log.e(TAG, error.getMessage());
-                                            }
-                                        });
-                                        folderRef.removeValue();
+
+                                                        @Override
+                                                        public void onCancelled(@NonNull DatabaseError error) {
+                                                            Log.e(TAG, error.getMessage());
+                                                        }
+                                                    });
+                                                }
+
+                                                @Override
+                                                public void onCancelled(@NonNull DatabaseError error) {
+                                                    Log.e(TAG, error.getMessage());
+                                                }
+                                            });
+                                            folderRef.removeValue();
+                                        }
                                     }
                                     DatabaseReference allRoomsRef = app.getDatabase().getReference("rooms");
                                     allRoomsRef.child(roomId).removeValue();
