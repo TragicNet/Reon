@@ -7,6 +7,7 @@ import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Environment;
+import android.util.Log;
 
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -35,6 +36,7 @@ public class Reon extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+        Log.d(TAG, "Application Created");
         database = FirebaseDatabase.getInstance();
         storage = FirebaseStorage.getInstance();
         database.setPersistenceEnabled(true);

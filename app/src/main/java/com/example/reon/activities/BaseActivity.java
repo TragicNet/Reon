@@ -43,6 +43,7 @@ public abstract class BaseActivity extends AppCompatActivity {
 
         this.app = ((Reon) this.getApplication());
         if(!this.getClass().equals(SignInActivity.class) && !this.getClass().equals(ProfileEditActivity.class)) {
+            Log.d("_reon","Checking user" + this.getClass());
             checkUser();
         }
         // Auto Hide Navigation buttons

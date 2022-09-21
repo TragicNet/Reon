@@ -54,7 +54,7 @@ import java.util.Calendar;
 import java.util.Objects;
 
 public class FolderActivity extends BaseActivity implements FileListAdapter.OnFileListener {
-
+    
     private ActivityFolderBinding binding;
 
     String folderId = "",

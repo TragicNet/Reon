@@ -3,6 +3,29 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Users/DELL/AndroidStudioProjects/Reon/app/src/main/res/drawable/background_button.xml" value="0.2425" />
+        <entry key="..\:/Users/DELL/AndroidStudioProjects/Reon/app/src/main/res/drawable/background_view.xml" value="0.2425" />
+        <entry key="..\:/Users/DELL/AndroidStudioProjects/Reon/app/src/main/res/drawable/background_view_bordered.xml" value="0.2425" />
+        <entry key="..\:/Users/DELL/AndroidStudioProjects/Reon/app/src/main/res/drawable/list_item_selector.xml" value="0.2425" />
+        <entry key="..\:/Users/DELL/AndroidStudioProjects/Reon/app/src/main/res/drawable/selection.xml" value="0.2425" />
+        <entry key="..\:/Users/DELL/AndroidStudioProjects/Reon/app/src/main/res/layout/activity_dashboard.xml" value="0.23645833333333333" />
+        <entry key="..\:/Users/DELL/AndroidStudioProjects/Reon/app/src/main/res/layout/activity_folder.xml" value="0.23645833333333333" />
+        <entry key="..\:/Users/DELL/AndroidStudioProjects/Reon/app/src/main/res/layout/activity_profile.xml" value="0.23645833333333333" />
+        <entry key="..\:/Users/DELL/AndroidStudioProjects/Reon/app/src/main/res/layout/activity_profile_edit.xml" value="0.23645833333333333" />
+        <entry key="..\:/Users/DELL/AndroidStudioProjects/Reon/app/src/main/res/layout/activity_room.xml" value="0.23645833333333333" />
+        <entry key="..\:/Users/DELL/AndroidStudioProjects/Reon/app/src/main/res/layout/activity_room_edit.xml" value="0.23645833333333333" />
+        <entry key="..\:/Users/DELL/AndroidStudioProjects/Reon/app/src/main/res/layout/activity_room_info.xml" value="0.23645833333333333" />
+        <entry key="..\:/Users/DELL/AndroidStudioProjects/Reon/app/src/main/res/layout/activity_sign_in.xml" value="0.17" />
+        <entry key="..\:/Users/DELL/AndroidStudioProjects/Reon/app/src/main/res/layout/alert_rename_folder.xml" value="0.10677083333333333" />
+        <entry key="..\:/Users/DELL/AndroidStudioProjects/Reon/app/src/main/res/layout/alert_title.xml" value="0.10677083333333333" />
+        <entry key="..\:/Users/DELL/AndroidStudioProjects/Reon/app/src/main/res/layout/list_item_file.xml" value="0.23645833333333333" />
+        <entry key="..\:/Users/DELL/AndroidStudioProjects/Reon/app/src/main/res/layout/list_item_folder.xml" value="0.23645833333333333" />
+        <entry key="..\:/Users/DELL/AndroidStudioProjects/Reon/app/src/main/res/layout/list_item_room.xml" value="0.67" />
+        <entry key="..\:/Users/DELL/AndroidStudioProjects/Reon/app/src/main/res/layout/recycler_view_item.xml" value="0.23645833333333333" />
+        <entry key="..\:/Users/DELL/AndroidStudioProjects/Reon/app/src/main/res/layout/toolbar.xml" value="0.20244565217391305" />
+        <entry key="..\:/Users/DELL/AndroidStudioProjects/Reon/app/src/main/res/menu/menu_dashboard.xml" value="0.23645833333333333" />
+        <entry key="..\:/Users/DELL/AndroidStudioProjects/Reon/app/src/main/res/menu/menu_folder.xml" value="0.23645833333333333" />
+        <entry key="..\:/Users/DELL/AndroidStudioProjects/Reon/app/src/main/res/menu/menu_room.xml" value="0.23645833333333333" />
         <entry key="..\:/Users/Max/AndroidStudioProjects/Reon/app/src/main/res/drawable-anydpi/ic_add.xml" value="0.25625" />
         <entry key="..\:/Users/Max/AndroidStudioProjects/Reon/app/src/main/res/drawable-anydpi/ic_android.xml" value="0.24114583333333334" />
         <entry key="..\:/Users/Max/AndroidStudioProjects/Reon/app/src/main/res/drawable-anydpi/ic_archive.xml" value="0.24114583333333334" />
