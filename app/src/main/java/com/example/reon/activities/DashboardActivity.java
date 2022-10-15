@@ -9,6 +9,8 @@ import android.view.MenuItem;
 import android.view.View;
 
 import androidx.annotation.NonNull;
+import androidx.navigation.NavController;
+import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -47,6 +49,11 @@ public class DashboardActivity extends BaseActivity implements RoomListAdapter.O
         setContentView(binding.getRoot());
 
         init();
+
+//        NavHostFragment navHostFragment =
+//                (NavHostFragment) this.getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment);
+//        NavController navController = navHostFragment.getNavController();
+
 
         userRoomsRef = app.getDatabase().getReference("users").child(app.getCurrentUser().getUid()).child("roomList");
         allRoomsRef = app.getDatabase().getReference("rooms");

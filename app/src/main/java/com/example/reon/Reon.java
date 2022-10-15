@@ -36,7 +36,6 @@ public class Reon extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        Log.d(TAG, "Application Created");
         database = FirebaseDatabase.getInstance();
         storage = FirebaseStorage.getInstance();
         database.setPersistenceEnabled(true);

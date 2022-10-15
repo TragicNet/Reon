@@ -1,5 +1,6 @@
 package com.example.reon.activities;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.DownloadManager;
 import android.app.ProgressDialog;
@@ -153,7 +154,8 @@ public class FolderActivity extends BaseActivity implements FileListAdapter.OnFi
                 for (DataSnapshot ds : snapshot.getChildren()) {
                     fileIds.add((String) ds.getValue());
                 }
-                allFilesRef.addListenerForSingleValueEvent(allFilesListener);
+//                allFilesRef.addListenerForSingleValueEvent(allFilesListener);
+                allFilesRef.addValueEventListener(allFilesListener);
             }
         }
 
@@ -168,11 +170,15 @@ public class FolderActivity extends BaseActivity implements FileListAdapter.OnFi
         public void onDataChange(@NonNull DataSnapshot snapshot) {
             if (snapshot.exists() && !fileIds.isEmpty()) {
                 files.clear();
+                Log.d(TAG, String.valueOf(fileIds));
                 for (DataSnapshot ds : snapshot.getChildren()) {
+                    Log.d(TAG, ds.getKey());
                     if (fileIds.contains(ds.getKey())) {
                         files.add(ds.getValue(File.class));
-//                                        files.get(files.size() - 1).setThumbnail(createThumbnail(files.get(files.size() - 1)));
+//                        files.get(files.size() - 1).setThumbnail(createThumbnail(files.get(files.size() - 1)));
                     }
+//                    File file = ds.getValue(File.class);
+//                    Log.d(TAG, String.valueOf(file));
                 }
                 fileListAdapter.setFiles(files);
                 fileListAdapter.notifyDataSetChanged();
@@ -304,7 +310,7 @@ public class FolderActivity extends BaseActivity implements FileListAdapter.OnFi
         downloadManager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
         Cursor c = downloadManager.query(q);
         if (c.moveToFirst()) {
-            int status = c.getInt(c.getColumnIndex(DownloadManager.COLUMN_STATUS));
+            @SuppressLint("Range") int status = c.getInt(c.getColumnIndex(DownloadManager.COLUMN_STATUS));
             Log.d(TAG, "status: " + status);
             if (status == DownloadManager.STATUS_RUNNING) {
                 fileListAdapter.startDownloading(downloadPosition);
@@ -328,10 +334,10 @@ public class FolderActivity extends BaseActivity implements FileListAdapter.OnFi
                 DownloadManager downloadManager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
                 Cursor c = downloadManager.query(q);
                 if (c.moveToFirst()) {
-                    int status = c.getInt(c.getColumnIndex(DownloadManager.COLUMN_STATUS));
+                    @SuppressLint("Range") int status = c.getInt(c.getColumnIndex(DownloadManager.COLUMN_STATUS));
                     if (status == DownloadManager.STATUS_SUCCESSFUL) {
                         // process download
-                        String title = c.getString(c.getColumnIndex(DownloadManager.COLUMN_TITLE));
+                        @SuppressLint("Range") String title = c.getString(c.getColumnIndex(DownloadManager.COLUMN_TITLE));
                         Log.d(TAG, title);
                         // get other required data by changing the constant passed to getColumnIndex
                     }
@@ -432,6 +438,7 @@ public class FolderActivity extends BaseActivity implements FileListAdapter.OnFi
                 }
             });
 
+    @SuppressLint("Range")
     public String getFileName(Uri uri) {
         String result = null;
         if (uri.getScheme().equals("content")) {

@@ -2,6 +2,8 @@ package com.example.reon.classes;
 
 import android.graphics.Bitmap;
 
+import androidx.annotation.NonNull;
+
 import com.google.firebase.database.Exclude;
 
 public class File {
@@ -78,5 +80,20 @@ public class File {
 
     public void setUri(String uri) {
         this.uri = uri;
+    }
+
+    @NonNull
+    @Override
+    public String toString() {
+        return "File{" +
+                "id='" + id + '\'' +
+                ", created_at='" + created_at + '\'' +
+                ", name='" + name + '\'' +
+                ", type='" + type + '\'' +
+                ", uploaded_by='" + uploaded_by + '\'' +
+                ", uri='" + uri + '\'' +
+                ", thumbnail=" + thumbnail +
+                ", downloading=" + downloading +
+                '}';
     }
 }

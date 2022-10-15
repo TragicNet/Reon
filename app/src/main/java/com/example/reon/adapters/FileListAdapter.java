@@ -77,7 +77,7 @@ public class FileListAdapter extends RecyclerView.Adapter<FileListAdapter.ViewHo
             boolean setImage = false;
             if(temp.exists()) {
                 if(file.getThumbnail() == null) {
-                    Log.d("reon_FileListAdapter", "path: " + temp.getPath());
+//                    Log.d("reon_FileListAdapter", "path: " + temp.getPath());
                     Bitmap bitmap = getPreview(temp.getPath());
 
                     if(bitmap != null) {

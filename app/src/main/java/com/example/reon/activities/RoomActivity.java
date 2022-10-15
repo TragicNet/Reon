@@ -235,6 +235,11 @@ public class RoomActivity extends BaseActivity implements FolderListAdapter.OnFo
                                                         Log.d(TAG, "found: " + ds.getKey());
                                                         allFilesRef.child(Objects.requireNonNull(ds.getKey())).removeValue();
                                                         uploadsRef.child(ds.getKey()).delete();
+
+                                                        /*
+                                                            CHECK
+                                                         */
+
                                                     }
                                                 }
                                             }
