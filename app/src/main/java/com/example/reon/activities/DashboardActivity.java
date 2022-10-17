@@ -1,5 +1,6 @@
 package com.example.reon.activities;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -203,6 +204,21 @@ public class DashboardActivity extends BaseActivity implements RoomListAdapter.O
             startActivity(new Intent(getApplicationContext(), ProfileActivity.class));
         } else if (itemId == R.id.menuItem_settings) {
             Log.d(TAG, "Pressed settings menuitem");
+
+            startActivity(new Intent(Intent.ACTION_VIEW,Uri.parse("https://drive.google.com/file/d/1bGps4tlbuYScIynLmEA1U4EpJA7VrfwG/view?usp=sharing")));
+            // Check for Updates
+//            AppUpdater appUpdater = new AppUpdater(this).setUpdateFrom(UpdateFrom.GITHUB)
+//                    .setGitHubUserAndRepo("TragicNet", "Reon")
+//                    .setButtonUpdateClickListener(new DialogInterface.OnClickListener() {
+//
+//                        @Override
+//                        public void onClick(DialogInterface dialogInterface, int i) {
+//                            Log.d(TAG, "Open Link to Repo");
+//                            startActivity(new Intent(Intent.ACTION_VIEW,Uri.parse("https://github.com/TragicNet/Reon")));
+//                        }
+//                    });
+//            appUpdater.start();
+
         }
 
         return super.onOptionsItemSelected(item);

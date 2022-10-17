@@ -162,6 +162,8 @@ public class RoomEditActivity extends BaseActivity {
                                     Log.d(TAG, databaseError.getMessage());
                                 }
                             });
+                        } else {
+                            Log.d(TAG, task.getException().getMessage());
                         }
                     }
                 });

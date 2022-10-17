@@ -235,6 +235,7 @@ public class RoomInfoActivity extends BaseActivity {
                                                     }
 
                                                     if (roomList.remove(roomId)) {
+                                                        Log.d(TAG, "Removed room: " + roomId);
                                                         userRoomsRef.setValue(roomList);
                                                     }
                                                 }

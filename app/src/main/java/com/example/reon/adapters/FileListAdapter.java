@@ -52,7 +52,7 @@ public class FileListAdapter extends RecyclerView.Adapter<FileListAdapter.ViewHo
     @Override
     public void onBindViewHolder(@NonNull FileListAdapter.ViewHolder holder, int position) {
         File file = files.get(position);
-        Log.d("reon_FileListAdapter", "name: " + file.getName());
+//        Log.d("reon_FileListAdapter", "name: " + file.getName());
         java.io.File temp = new java.io.File((Reon.rootPath + file.getName()));
         ImageView downloadIcon = holder.itemView.findViewById(R.id.file_item_download);
         if (temp.exists()) {

@@ -13,6 +13,7 @@ import android.content.IntentFilter;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.OpenableColumns;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -170,9 +171,8 @@ public class FolderActivity extends BaseActivity implements FileListAdapter.OnFi
         public void onDataChange(@NonNull DataSnapshot snapshot) {
             if (snapshot.exists() && !fileIds.isEmpty()) {
                 files.clear();
-                Log.d(TAG, String.valueOf(fileIds));
                 for (DataSnapshot ds : snapshot.getChildren()) {
-                    Log.d(TAG, ds.getKey());
+//                    Log.d(TAG, ds.getKey());
                     if (fileIds.contains(ds.getKey())) {
                         files.add(ds.getValue(File.class));
 //                        files.get(files.size() - 1).setThumbnail(createThumbnail(files.get(files.size() - 1)));
@@ -289,8 +289,14 @@ public class FolderActivity extends BaseActivity implements FileListAdapter.OnFi
     public void downloadFile(File file) {
         String uri = file.getUri();
         java.io.File root = new java.io.File(Reon.rootPath);
-        if(!root.exists())
+//        java.io.File root = getApplication().getDir("Reon", Context.MODE_PRIVATE);
+        isStoragePermissionGranted();
+//        java.io.File root = new java.io.File(Environment.getExternalStorageDirectory(),"Reon");
+
+        Log.d(TAG, "path: " + root.getAbsolutePath());
+        if(!root.exists()) {
             root.mkdirs();
+        }
 
         DownloadManager.Request request = new DownloadManager.Request(Uri.parse(String.valueOf(uri)));
         request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI | DownloadManager.Request.NETWORK_MOBILE)
@@ -298,8 +304,9 @@ public class FolderActivity extends BaseActivity implements FileListAdapter.OnFi
                 .setMimeType(file.getType())
                 .setTitle(file.getName())
                 .setDescription(uri.toString())
-                .setDestinationInExternalPublicDir("/Reon", file.getName());
+                .setDestinationInExternalPublicDir("/Reon/", file.getName());
 
+        Log.d(TAG, "chk");
         DownloadManager downloadManager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
 
         downloadId = downloadManager.enqueue(request);
@@ -325,7 +332,7 @@ public class FolderActivity extends BaseActivity implements FileListAdapter.OnFi
         public void onReceive(Context context, Intent intent) {
             if(downloadId == intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1)) {
                 fileListAdapter.stopDownloading(downloadPosition);
-                fileListAdapter.notifyItemChanged(downloadPosition);
+//                fileListAdapter.notifyItemChanged(downloadPosition);
                 Toast.makeText(getApplicationContext(), "Download completed", Toast.LENGTH_SHORT).show();
 
                 // temp
@@ -339,6 +346,7 @@ public class FolderActivity extends BaseActivity implements FileListAdapter.OnFi
                         // process download
                         @SuppressLint("Range") String title = c.getString(c.getColumnIndex(DownloadManager.COLUMN_TITLE));
                         Log.d(TAG, title);
+                        fileListAdapter.notifyItemChanged(downloadPosition);
                         // get other required data by changing the constant passed to getColumnIndex
                     }
                 }
