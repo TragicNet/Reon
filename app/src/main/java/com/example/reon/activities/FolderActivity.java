@@ -109,6 +109,10 @@ public class FolderActivity extends BaseActivity implements FileListAdapter.OnFi
             }
         });
 
+        Log.d(TAG, "root: " + new java.io.File(Reon.rootPath).getAbsolutePath());
+        Log.d(TAG, "external: " + new java.io.File(Environment.getExternalStorageDirectory(),"Reon").getAbsolutePath());
+        java.io.File mediaStorageDir = getApplication().getExternalFilesDir(null);
+        Log.d(TAG,"mediaStorageDir: " + mediaStorageDir.getPath());
     }
 
     private void initializeAdminList() {
@@ -289,13 +293,10 @@ public class FolderActivity extends BaseActivity implements FileListAdapter.OnFi
     public void downloadFile(File file) {
         String uri = file.getUri();
         java.io.File root = new java.io.File(Reon.rootPath);
-//        java.io.File root = getApplication().getDir("Reon", Context.MODE_PRIVATE);
         isStoragePermissionGranted();
-//        java.io.File root = new java.io.File(Environment.getExternalStorageDirectory(),"Reon");
 
-        Log.d(TAG, "path: " + root.getAbsolutePath());
         if(!root.exists()) {
-            root.mkdirs();
+            Log.d(TAG, "mkdirs: " + new java.io.File("/Reon/").mkdirs());
         }
 
         DownloadManager.Request request = new DownloadManager.Request(Uri.parse(String.valueOf(uri)));
@@ -303,7 +304,7 @@ public class FolderActivity extends BaseActivity implements FileListAdapter.OnFi
                 .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
                 .setMimeType(file.getType())
                 .setTitle(file.getName())
-                .setDescription(uri.toString())
+                .setDescription(uri)
                 .setDestinationInExternalPublicDir("/Reon/", file.getName());
 
         Log.d(TAG, "chk");

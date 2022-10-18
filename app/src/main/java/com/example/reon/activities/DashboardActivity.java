@@ -83,7 +83,10 @@ public class DashboardActivity extends BaseActivity implements RoomListAdapter.O
             @Override
             public void onSuccess(PendingDynamicLinkData pendingDynamicLinkData) {
                 if (pendingDynamicLinkData != null) {
+                    Log.d(TAG, "got link");
+                    Log.d(TAG, "found: " + pendingDynamicLinkData.getLink());
                     Uri deepLink = pendingDynamicLinkData.getLink();
+
                     if (deepLink != null) {
                         String roomId = deepLink.getQueryParameter("roomid");
                         Log.d(TAG, "roomid: " + roomId);

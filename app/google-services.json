@@ -15,11 +15,19 @@
       },
       "oauth_client": [
         {
-          "client_id": "681117256423-eua6v1bvb63tbpc7f16k8mcvp30ti80f.apps.googleusercontent.com",
+          "client_id": "681117256423-m5leeel2fm1nk5fmpf57kkm7gqs9fd4a.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.example.reon",
-            "certificate_hash": "d8bc38b38b29ef5f9d462de84da0e9ebdf781df9"
+            "certificate_hash": "eda5cb0e1378f9e39e4e4e3d937dada7d90ba821"
+          }
+        },
+        {
+          "client_id": "681117256423-n6qjc0d9ejuevtqj66mjsim9bt9votbm.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.reon",
+            "certificate_hash": "41da548fbe21a564de34f7d26cd8bea1eb9c4593"
           }
         },
         {
