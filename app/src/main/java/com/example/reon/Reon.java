@@ -1,26 +1,23 @@
 package com.example.reon;
 
-import android.Manifest;
 import android.app.Application;
 import android.content.Context;
-import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.os.Environment;
+import android.os.Build;
 import android.util.Log;
 
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
+import androidx.annotation.RequiresApi;
 
-import com.example.reon.activities.FolderActivity;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
 
+import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Locale;
 
 public class Reon extends Application {
@@ -29,16 +26,23 @@ public class Reon extends Application {
 
     private FirebaseDatabase database;
     private FirebaseStorage storage;
-    public static final String rootPath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/Reon/";
+//    public static final String rootPath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/Reon/";
+    public static String downloadsDirectory;
 
     public SimpleDateFormat dateTimeFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm", Locale.US);
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     public void onCreate() {
         super.onCreate();
         database = FirebaseDatabase.getInstance();
         storage = FirebaseStorage.getInstance();
         database.setPersistenceEnabled(true);
+
+
+        Path filesDirectory = Paths.get(getApplicationContext().getExternalFilesDir(null).getAbsolutePath());
+        downloadsDirectory = filesDirectory + "/downloads/";
+        Log.d(TAG, "rootPath: " + downloadsDirectory);
     }
 
     public FirebaseAuth getAuth() {

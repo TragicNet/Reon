@@ -4,4 +4,8 @@
     <item
         android:id="@+id/menuItem_rename"
         android:title="Rename" />
+
+    <item
+        android:id="@+id/menuItem_refresh"
+        android:title="Refresh" />
 </menu>

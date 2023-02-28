@@ -55,9 +55,10 @@ public class DashboardActivity extends BaseActivity implements RoomListAdapter.O
 //                (NavHostFragment) this.getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment);
 //        NavController navController = navHostFragment.getNavController();
 
-
-        userRoomsRef = app.getDatabase().getReference("users").child(app.getCurrentUser().getUid()).child("roomList");
-        allRoomsRef = app.getDatabase().getReference("rooms");
+        if(app.getCurrentUser() != null) {
+            userRoomsRef = app.getDatabase().getReference("users").child(app.getCurrentUser().getUid()).child("roomList");
+            allRoomsRef = app.getDatabase().getReference("rooms");
+        }
 
         initailizeRecyclerView();
 

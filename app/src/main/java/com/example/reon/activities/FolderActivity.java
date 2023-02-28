@@ -1,6 +1,7 @@
 package com.example.reon.activities;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DownloadManager;
 import android.app.ProgressDialog;
@@ -11,9 +12,11 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.Cursor;
+import android.media.Ringtone;
+import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
+import android.os.FileObserver;
 import android.provider.OpenableColumns;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -51,6 +54,7 @@ import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Objects;
@@ -97,6 +101,25 @@ public class FolderActivity extends BaseActivity implements FileListAdapter.OnFi
 
         initailizeRecyclerView();
 
+        FileObserver directoryFileObserver = new FileObserver(Reon.downloadsDirectory, FileObserver.ALL_EVENTS) {
+            @Override
+            public void onEvent(int event, String path) {
+                if(path != null) {
+                    if(event == FileObserver.DELETE) {
+                        Log.d("reon_FileObserver: ", "File Deleted");
+
+//                        fileListAdapter = new FileListAdapter(getApplicationContext(), files,
+//                                FolderActivity.this);
+//                        fileList.setAdapter(fileListAdapter);
+                        fileListAdapter.notifyDataSetChanged();
+//                        fileListAdapter.notifyItemRangeChanged(0, files.size());
+
+                    }
+                }
+            }
+        };
+        directoryFileObserver.startWatching();
+
         binding.buttonAddFile.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -109,10 +132,10 @@ public class FolderActivity extends BaseActivity implements FileListAdapter.OnFi
             }
         });
 
-        Log.d(TAG, "root: " + new java.io.File(Reon.rootPath).getAbsolutePath());
-        Log.d(TAG, "external: " + new java.io.File(Environment.getExternalStorageDirectory(),"Reon").getAbsolutePath());
-        java.io.File mediaStorageDir = getApplication().getExternalFilesDir(null);
-        Log.d(TAG,"mediaStorageDir: " + mediaStorageDir.getPath());
+//        Log.d(TAG, "root: " + new java.io.File(Reon.rootPath).getAbsolutePath());
+//        Log.d(TAG, "external: " + new java.io.File(Environment.getExternalStorageDirectory(),"Reon").getAbsolutePath());
+//        java.io.File mediaStorageDir = getApplication().getExternalFilesDir(null);
+//        Log.d(TAG,"mediaStorageDir: " + mediaStorageDir.getPath());
     }
 
     private void initializeAdminList() {
@@ -198,7 +221,7 @@ public class FolderActivity extends BaseActivity implements FileListAdapter.OnFi
     public void onFileClick(int position) {
         File file = files.get(position);
         Log.d(TAG, "Clicked on: " + file.getName());
-        java.io.File temp = new java.io.File((Reon.rootPath + file.getName()));
+        java.io.File temp = new java.io.File(Reon.downloadsDirectory + file.getName());
         if(!temp.exists()) {
             downloadPosition = position;
             downloadFile(file);
@@ -277,7 +300,7 @@ public class FolderActivity extends BaseActivity implements FileListAdapter.OnFi
 
     private void openFile(File file) {
         try {
-            java.io.File temp = new java.io.File((Reon.rootPath + file.getName()));
+            java.io.File temp = new java.io.File((Reon.downloadsDirectory + file.getName()));
             Intent intent = new Intent(Intent.ACTION_VIEW);
             String ext = MimeTypeMap.getFileExtensionFromUrl(temp.getAbsolutePath());
             String mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(ext);
@@ -292,20 +315,15 @@ public class FolderActivity extends BaseActivity implements FileListAdapter.OnFi
 
     public void downloadFile(File file) {
         String uri = file.getUri();
-        java.io.File root = new java.io.File(Reon.rootPath);
         isStoragePermissionGranted();
-
-        if(!root.exists()) {
-            Log.d(TAG, "mkdirs: " + new java.io.File("/Reon/").mkdirs());
-        }
 
         DownloadManager.Request request = new DownloadManager.Request(Uri.parse(String.valueOf(uri)));
         request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI | DownloadManager.Request.NETWORK_MOBILE)
-                .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
+                .setNotificationVisibility(DownloadManager.Request.VISIBILITY_HIDDEN)
                 .setMimeType(file.getType())
                 .setTitle(file.getName())
                 .setDescription(uri)
-                .setDestinationInExternalPublicDir("/Reon/", file.getName());
+                .setDestinationInExternalFilesDir(this, null, "/downloads/" + file.getName());
 
         Log.d(TAG, "chk");
         DownloadManager downloadManager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
@@ -335,6 +353,13 @@ public class FolderActivity extends BaseActivity implements FileListAdapter.OnFi
                 fileListAdapter.stopDownloading(downloadPosition);
 //                fileListAdapter.notifyItemChanged(downloadPosition);
                 Toast.makeText(getApplicationContext(), "Download completed", Toast.LENGTH_SHORT).show();
+                try {
+                    Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                    Ringtone r = RingtoneManager.getRingtone(getApplicationContext(), notification);
+                    r.play();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
 
                 // temp
                 DownloadManager.Query q = new DownloadManager.Query();
@@ -360,89 +385,94 @@ public class FolderActivity extends BaseActivity implements FileListAdapter.OnFi
             new ActivityResultCallback<ActivityResult>() {
                 @Override
                 public void onActivityResult(ActivityResult result) {
-                    String filePath, fileName, fileType;
-                    Intent data = result.getData();
-                    assert data != null;
-                    if(data.getClipData() == null) {
-                        filePath = data.getData().toString();
-                        Log.d(TAG, "File Path: " + filePath);
-                        fileName = getFileName(data.getData());
-                        Log.d(TAG, "File Name: " + fileName);
-                        fileType = FolderActivity.this.getContentResolver().getType(Uri.parse(filePath));
-
-                        allFilesRef.addListenerForSingleValueEvent(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                final ProgressDialog progressDialog =
-                                        new ProgressDialog(FolderActivity.this);
-                                progressDialog.setTitle("Uploading");
-                                progressDialog.show();
-
-                                String fileId = allFilesRef.push().getKey();
-
-                                StorageReference uploadsRef = app.getStorage().getReference("uploads");
-                                uploadsRef.child(fileId).putFile(Uri.parse(filePath)).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                                    @Override
-                                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-
-                                        Task<Uri> result = taskSnapshot.getStorage().getDownloadUrl();
-                                        result.addOnSuccessListener(new OnSuccessListener<Uri>() {
-                                            @Override
-                                            public void onSuccess(@NonNull Uri uri) {
-                                                Log.d(TAG, "uri: " + uri);
-                                                File file = new File(fileId,
-                                                        app.dateTimeFormat.format(Calendar.getInstance().getTime()), fileName, fileType, app.getCurrentUser().getUid(), uri.toString());
-                                                allFilesRef.child(Objects.requireNonNull(fileId)).setValue(file);
-                                                folderFilesRef.addListenerForSingleValueEvent(new ValueEventListener() {
-                                                    @Override
-                                                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                                        fileIds.clear();
-                                                        if (snapshot.exists()) {
-                                                            for (DataSnapshot ds : snapshot.getChildren()) {
-                                                                fileIds.add((String) ds.getValue());
-                                                            }
-                                                        }
-                                                        fileIds.add(fileId);
-                                                        folderFilesRef.setValue(fileIds);
-                                                    }
-
-                                                    @Override
-                                                    public void onCancelled(@NonNull DatabaseError error) {
-                                                        Log.e(TAG, error.getMessage());
-                                                    }
-                                                });
-                                                progressDialog.dismiss();
-                                                Toast.makeText(getApplicationContext(), "File Uploaded ", Toast.LENGTH_LONG).show();
-                                            }
-                                        });
-                                    }
-                                }).addOnFailureListener(new OnFailureListener() {
-                                    @Override
-                                    public void onFailure(@NonNull Exception exception) {
-                                        progressDialog.dismiss();
-                                        Toast.makeText(getApplicationContext(), exception.getMessage(), Toast.LENGTH_LONG).show();
-                                    }
-                                }).addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
-                                    @Override
-                                    public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
-                                        double progress = (100.0 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount();
-                                        progressDialog.setMessage("Uploaded " + ((int) progress) + "%...");
-                                    }
-                                });
-                            }
-
-                            @Override
-                            public void onCancelled(@NonNull DatabaseError error) {
-                                Log.d(TAG, error.getMessage());
-                            }
-                        });
-
+                    if(result.getResultCode() != Activity.RESULT_OK) {
+                        Log.d(TAG, "onActivityResult: Back");
+                        finishActivity(result.getResultCode());
                     } else {
-                        ArrayList<String> uris = new ArrayList<>();
-                        for(int i = 0; i < data.getClipData().getItemCount(); i++) {
-                            uris.add(data.getClipData().getItemAt(i).getUri().toString());
+                        String filePath, fileName, fileType;
+                        Intent data = result.getData();
+                        assert data != null;
+                        if (data.getClipData() == null) {
+                            filePath = data.getData().toString();
+                            Log.d(TAG, "File Path: " + filePath);
+                            fileName = getFileName(data.getData());
+                            Log.d(TAG, "File Name: " + fileName);
+                            fileType = FolderActivity.this.getContentResolver().getType(Uri.parse(filePath));
+
+                            allFilesRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                    final ProgressDialog progressDialog =
+                                            new ProgressDialog(FolderActivity.this);
+                                    progressDialog.setTitle("Uploading");
+                                    progressDialog.show();
+
+                                    String fileId = allFilesRef.push().getKey();
+
+                                    StorageReference uploadsRef = app.getStorage().getReference("uploads");
+                                    uploadsRef.child(fileId).putFile(Uri.parse(filePath)).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                                        @Override
+                                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+
+                                            Task<Uri> result = taskSnapshot.getStorage().getDownloadUrl();
+                                            result.addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                                @Override
+                                                public void onSuccess(@NonNull Uri uri) {
+                                                    Log.d(TAG, "uri: " + uri);
+                                                    File file = new File(fileId,
+                                                            app.dateTimeFormat.format(Calendar.getInstance().getTime()), fileName, fileType, app.getCurrentUser().getUid(), uri.toString());
+                                                    allFilesRef.child(Objects.requireNonNull(fileId)).setValue(file);
+                                                    folderFilesRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                                                        @Override
+                                                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                                            fileIds.clear();
+                                                            if (snapshot.exists()) {
+                                                                for (DataSnapshot ds : snapshot.getChildren()) {
+                                                                    fileIds.add((String) ds.getValue());
+                                                                }
+                                                            }
+                                                            fileIds.add(fileId);
+                                                            folderFilesRef.setValue(fileIds);
+                                                        }
+
+                                                        @Override
+                                                        public void onCancelled(@NonNull DatabaseError error) {
+                                                            Log.e(TAG, error.getMessage());
+                                                        }
+                                                    });
+                                                    progressDialog.dismiss();
+                                                    Toast.makeText(getApplicationContext(), "File Uploaded ", Toast.LENGTH_LONG).show();
+                                                }
+                                            });
+                                        }
+                                    }).addOnFailureListener(new OnFailureListener() {
+                                        @Override
+                                        public void onFailure(@NonNull Exception exception) {
+                                            progressDialog.dismiss();
+                                            Toast.makeText(getApplicationContext(), exception.getMessage(), Toast.LENGTH_LONG).show();
+                                        }
+                                    }).addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
+                                        @Override
+                                        public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
+                                            double progress = (100.0 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount();
+                                            progressDialog.setMessage("Uploaded " + ((int) progress) + "%...");
+                                        }
+                                    });
+                                }
+
+                                @Override
+                                public void onCancelled(@NonNull DatabaseError error) {
+                                    Log.d(TAG, error.getMessage());
+                                }
+                            });
+
+                        } else {
+                            ArrayList<String> uris = new ArrayList<>();
+                            for (int i = 0; i < data.getClipData().getItemCount(); i++) {
+                                uris.add(data.getClipData().getItemAt(i).getUri().toString());
+                            }
+                            Log.d(TAG, uris.toString());
                         }
-                        Log.d(TAG, uris.toString());
                     }
                 }
             });
@@ -482,6 +512,11 @@ public class FolderActivity extends BaseActivity implements FileListAdapter.OnFi
         if (itemId == R.id.menuItem_rename) {
             Log.d(TAG, "Pressed rename menuitem");
             renameFolder();
+        } else if(itemId == R.id.menuItem_refresh) {
+            finish();
+            overridePendingTransition(0, 0);
+            startActivity(getIntent());
+            overridePendingTransition(0, 0);
         }
 
         return super.onOptionsItemSelected(item);

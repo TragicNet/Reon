@@ -1,7 +1,6 @@
 package com.example.reon.adapters;
 
 import android.content.Context;
-import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.Log;
@@ -12,7 +11,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.core.widget.ImageViewCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.reon.R;
@@ -53,7 +51,8 @@ public class FileListAdapter extends RecyclerView.Adapter<FileListAdapter.ViewHo
     public void onBindViewHolder(@NonNull FileListAdapter.ViewHolder holder, int position) {
         File file = files.get(position);
 //        Log.d("reon_FileListAdapter", "name: " + file.getName());
-        java.io.File temp = new java.io.File((Reon.rootPath + file.getName()));
+        java.io.File temp = new java.io.File((Reon.downloadsDirectory + file.getName()));
+        Log.d("reon_FileListAdapter", "temp: " + temp.getAbsolutePath());
         ImageView downloadIcon = holder.itemView.findViewById(R.id.file_item_download);
         if (temp.exists()) {
             downloadIcon.setVisibility(View.GONE);
@@ -64,6 +63,7 @@ public class FileListAdapter extends RecyclerView.Adapter<FileListAdapter.ViewHo
             } else {
                 downloadIcon.setImageResource(R.drawable.ic_download);
             }
+            Log.d("reon_FileListAdapter", "Does not exist " + file.getName());
         }
         holder.name.setText(file.getName());
         holder.date.setText(file.getCreated_at());
