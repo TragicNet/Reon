@@ -3,5 +3,5 @@
 
     <item
         android:id="@+id/menuItem_roomInfo"
-        android:title="Room Info" />
+        android:title="@string/room_info" />
 </menu>

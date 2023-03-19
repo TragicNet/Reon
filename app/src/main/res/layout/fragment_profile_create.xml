@@ -6,11 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="?ui.panel.border"
-    tools:context=".activities.RoomEditActivity">
-
-    <include
-        android:id="@+id/toolbar"
-        layout="@layout/toolbar" />
+    tools:context=".fragments.ProfileCreateFragment">
 
     <FrameLayout
         android:layout_width="match_parent"
@@ -23,11 +19,11 @@
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:padding="5dp">
 
                 <LinearLayout
-                    android:id="@+id/nameContainer"
+                    android:id="@+id/name_container"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="100dp"
@@ -44,7 +40,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
                         android:labelFor="@+id/edit_user_name"
-                        android:text="Name"
+                        android:text="@string/name"
                         android:textSize="10sp" />
 
                     <EditText
@@ -54,14 +50,14 @@
                         android:background="@drawable/background_view"
                         android:ems="15"
                         android:gravity="start|top"
-                        android:hint="Name"
                         android:inputType="textFilter"
                         android:letterSpacing="0.03125"
-                        android:lineSpacingMultiplier="1.0" />
+                        android:lineSpacingMultiplier="1.0"
+                        android:importantForAutofill="no" />
                 </LinearLayout>
 
                 <LinearLayout
-                    android:id="@+id/aboutContainer"
+                    android:id="@+id/about_container"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="10dp"
@@ -71,13 +67,13 @@
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintHorizontal_bias="0.5"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/nameContainer">
+                    app:layout_constraintTop_toBottomOf="@+id/name_container">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
                         android:labelFor="@+id/edit_user_about"
-                        android:text="About"
+                        android:text="@string/about"
                         android:textSize="10sp" />
 
                     <EditText
@@ -87,36 +83,36 @@
                         android:background="@drawable/background_view"
                         android:ems="10"
                         android:gravity="start|top"
-                        android:hint="About"
                         android:inputType="textFilter|textMultiLine"
                         android:letterSpacing="0.03125"
-                        android:lineSpacingMultiplier="1.0" />
+                        android:lineSpacingMultiplier="1.0"
+                        android:importantForAutofill="no" />
                 </LinearLayout>
 
             </androidx.constraintlayout.widget.ConstraintLayout>
         </ScrollView>
 
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:gravity="bottom|end">
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="bottom|end">
 
-                <com.google.android.material.floatingactionbutton.FloatingActionButton
-                    android:id="@+id/button_update_profile"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="18dp"
-                    android:layout_marginBottom="18dp"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:src="@drawable/ic_check"
-                    app:tint="@color/white"
-                    app:backgroundTint="?attr/common.accent"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:maxImageSize="32dp" />
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/button_update_profile"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="18dp"
+                android:layout_marginBottom="18dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:src="@drawable/ic_check"
+                app:tint="@color/white"
+                app:backgroundTint="?attr/common.accent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:maxImageSize="32dp" />
 
-            </RelativeLayout>
+        </RelativeLayout>
     </FrameLayout>
 
 </androidx.appcompat.widget.LinearLayoutCompat>

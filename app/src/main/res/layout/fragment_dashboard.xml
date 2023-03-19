@@ -2,16 +2,11 @@
 <androidx.appcompat.widget.LinearLayoutCompat xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="?ui.panel.border"
-    tools:context=".activities.RoomActivity">
-
-    <include
-        android:id="@+id/toolbar"
-        layout="@layout/toolbar" />
-
+    android:orientation="vertical"
+    tools:context=".fragments.DashboardFragment">
 
     <FrameLayout
         android:layout_width="match_parent"
@@ -22,15 +17,16 @@
             android:layout_height="match_parent">
 
             <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/recycler_folder_list"
+                android:id="@+id/recycler_room_list"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:divider="@null"
+                android:dividerHeight="6dp"
+                android:listSelector="@drawable/list_item_selector"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.0"
-                app:layout_constraintStart_toStartOf="parent"
-                android:listSelector="@drawable/list_item_selector"
-                android:divider="@null"
-                android:dividerHeight="6dp"/>
+                app:layout_constraintStart_toStartOf="parent" />
+
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -40,7 +36,7 @@
             android:gravity="bottom|end">
 
             <com.google.android.material.floatingactionbutton.FloatingActionButton
-                android:id="@+id/button_create_folder"
+                android:id="@+id/button_create_room"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="18dp"
@@ -52,8 +48,8 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:maxImageSize="32dp"
-                app:tint="@color/white" />
-
+                app:tint="@color/white"
+                android:contentDescription="@string/create_room" />
         </RelativeLayout>
     </FrameLayout>
 

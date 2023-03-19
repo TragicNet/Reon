@@ -2,4 +2,128 @@
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/nav_graph"/>
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/dashboardFragment">
+
+    <fragment
+        android:id="@+id/dashboardFragment"
+        android:name="com.example.reon.fragments.DashboardFragment"
+        android:label="fragment_dashboard"
+        tools:layout="@layout/fragment_dashboard" >
+        <action
+            android:id="@+id/action_dashboardFragment_to_roomFragment"
+            app:destination="@id/roomFragment" />
+        <action
+            android:id="@+id/action_dashboardFragment_to_roomCreateFragment"
+            app:destination="@id/roomCreateFragment" />
+        <action
+            android:id="@+id/action_dashboardFragment_to_signInFragment"
+            app:destination="@id/signInFragment" />
+        <action
+            android:id="@+id/action_dashboardFragment_to_profileFragment"
+            app:destination="@id/profileFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/folderFragment"
+        android:name="com.example.reon.fragments.FolderFragment"
+        android:label="fragment_folder"
+        tools:layout="@layout/fragment_folder">
+        <action
+            android:id="@+id/action_folderFragment_to_roomFragment"
+            app:destination="@id/roomFragment" />
+        <argument
+            android:name="roomId"
+            app:argType="string" />
+        <argument
+            android:name="folderId"
+            app:argType="string" />
+        <deepLink
+            android:id="@+id/deepLink2"
+            app:action="OPEN_FOLDER_ACTION"
+            app:mimeType="type/sbtype"
+            app:uri="reon1.page.link?roomid={roomId}&amp;folderid={folderId}" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/profileFragment"
+        android:name="com.example.reon.fragments.ProfileFragment"
+        android:label="fragment_profile"
+        tools:layout="@layout/fragment_profile" >
+        <action
+            android:id="@+id/action_profileFragment_to_dashboardFragment"
+            app:destination="@id/dashboardFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/profileCreateFragment"
+        android:name="com.example.reon.fragments.ProfileCreateFragment"
+        android:label="fragment_profile_create"
+        tools:layout="@layout/fragment_profile_create" />
+
+    <fragment
+        android:id="@+id/roomFragment"
+        android:name="com.example.reon.fragments.RoomFragment"
+        android:label="fragment_room"
+        tools:layout="@layout/fragment_room">
+        <action
+            android:id="@+id/action_roomFragment_to_dashboardFragment"
+            app:destination="@id/dashboardFragment" />
+        <action
+            android:id="@+id/action_roomFragment_to_folderFragment"
+            app:destination="@id/folderFragment" />
+        <action
+            android:id="@+id/action_roomFragment_to_roomInfoFragment"
+            app:destination="@id/roomInfoFragment" />
+        <argument
+            android:name="roomId"
+            app:argType="string" />
+        <deepLink
+            android:id="@+id/deepLink"
+            app:action="OPEN_ROOM_ACTION"
+            app:mimeType="type/subtype"
+            app:uri="reon1.page.link?roomid={roomId}" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/roomCreateFragment"
+        android:name="com.example.reon.fragments.RoomCreateFragment"
+        android:label="fragment_room"
+        tools:layout="@layout/fragment_room_create" >
+        <action
+            android:id="@+id/action_roomCreateFragment_to_dashboardFragment"
+            app:destination="@id/dashboardFragment" />
+        <action
+            android:id="@+id/action_roomCreateFragment_to_roomFragment"
+            app:destination="@id/roomFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/roomInfoFragment"
+        android:name="com.example.reon.fragments.RoomInfoFragment"
+        android:label="fragment_room_info"
+        tools:layout="@layout/fragment_room_info" >
+        <action
+            android:id="@+id/action_roomInfoFragment_to_roomFragment"
+            app:destination="@id/roomFragment" />
+        <action
+            android:id="@+id/action_roomInfoFragment_to_dashboardFragment"
+            app:destination="@id/dashboardFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/signInFragment"
+        android:name="com.example.reon.fragments.SignInFragment"
+        android:label="fragment_sign_in"
+        tools:layout="@layout/fragment_sign_in" >
+        <action
+            android:id="@+id/action_signInFragment_to_dashboardFragment"
+            app:destination="@id/dashboardFragment" />
+        <action
+            android:id="@+id/action_signInFragment_to_profileCreateFragment"
+            app:destination="@id/profileCreateFragment" />
+    </fragment>
+
+
+
+</navigation>

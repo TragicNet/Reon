@@ -4,87 +4,60 @@
     package="com.example.reon">
 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        tools:ignore="ScopedStorage" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.DOWNLOAD_WITHOUT_NOTIFICATION" />
-
 
     <application
         android:name=".Reon"
         android:allowBackup="true"
-        android:requestLegacyExternalStorage="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
+        android:requestLegacyExternalStorage="true"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Reon">
+        <activity
+            android:name=".activities.MainActivity"
+            android:configChanges="orientation"
+            android:exported="true"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait">
+
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data
+                    android:host="reon1.page.link"
+                    android:scheme="http" />
+                <data
+                    android:host="reon1.page.link"
+                    android:scheme="https" />
+            </intent-filter>
+        </activity>
+
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.provider"
             android:exported="false"
             android:grantUriPermissions="true">
-        <meta-data
-            android:name="android.support.FILE_PROVIDER_PATHS"
-            android:resource="@xml/provider_paths" />
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/provider_paths" />
         </provider>
-        <activity
-            android:name=".activities.FolderActivity"
-            android:configChanges="orientation"
-            android:screenOrientation="portrait"
-            android:exported="true" />
-        <activity
-            android:name=".activities.RoomActivity"
-            android:configChanges="orientation"
-            android:screenOrientation="portrait"
-            android:exported="true" />
-        <activity
-            android:name=".activities.DashboardActivity"
-            android:configChanges="orientation"
-            android:screenOrientation="portrait"
-            android:launchMode="singleTask"
-            android:exported="true" >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
 
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-                <category android:name="android.intent.category.BROWSABLE"/>
-                <data android:host="reon1.page.link" android:scheme="http"/>
-                <data android:host="reon1.page.link" android:scheme="https"/>
-            </intent-filter>
-        </activity>
-        <activity
-            android:name=".activities.RoomInfoActivity"
-            android:configChanges="orientation"
-            android:screenOrientation="portrait"
-            android:exported="true" />
-        <activity
-            android:name=".activities.RoomEditActivity"
-            android:configChanges="orientation"
-            android:screenOrientation="portrait"
-            android:exported="true" />
-        <activity
-            android:name=".activities.ProfileEditActivity"
-            android:configChanges="orientation"
-            android:screenOrientation="portrait"
-            android:exported="true" />
-        <activity
-            android:name=".activities.BaseActivity"
-            android:exported="true" />
-        <activity
-            android:name=".activities.ProfileActivity"
-            android:configChanges="orientation"
-            android:screenOrientation="portrait"
-            android:exported="true" />
-        <activity
-            android:name=".activities.SignInActivity"
-            android:configChanges="orientation"
-            android:screenOrientation="portrait"
-            android:exported="true">
-        </activity>
+<!--        <activity-->
+<!--            android:name=".activities.RoomEditActivity"-->
+<!--            android:configChanges="orientation"-->
+<!--            android:exported="true"-->
+<!--            android:screenOrientation="portrait" />-->
     </application>
 
 </manifest>

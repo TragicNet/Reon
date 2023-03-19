@@ -17,8 +17,8 @@ import java.util.ArrayList;
 
 public class RoomListAdapter extends RecyclerView.Adapter<RoomListAdapter.ViewHolder> {
     private ArrayList<Room> rooms;
-    private Context context;
-    private OnRoomListener listener;
+    private final Context context;
+    private final OnRoomListener listener;
 
     public RoomListAdapter(Context context, ArrayList<Room> rooms, OnRoomListener listener) {
         this.rooms = rooms;
@@ -47,7 +47,7 @@ public class RoomListAdapter extends RecyclerView.Adapter<RoomListAdapter.ViewHo
         return rooms.size();
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    public static class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         public TextView name;
         public ImageView image;
 

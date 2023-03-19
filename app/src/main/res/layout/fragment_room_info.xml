@@ -2,15 +2,12 @@
 <androidx.appcompat.widget.LinearLayoutCompat xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:orientation="vertical"
+    android:id="@+id/room_info_fragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="?ui.panel.border"
-    tools:context=".activities.RoomInfoActivity">
-
-    <include
-        android:id="@+id/toolbar"
-        layout="@layout/toolbar" />
+    android:orientation="vertical"
+    tools:context=".fragments.RoomInfoFragment">
 
     <FrameLayout
         android:layout_width="match_parent"
@@ -21,87 +18,154 @@
             android:layout_height="match_parent"
             android:padding="5dp">
 
-            <LinearLayout
-                android:id="@+id/nameContainer"
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/outer_name_container"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="100dp"
                 android:background="@drawable/background_view"
-                android:gravity="center_vertical"
-                android:orientation="vertical"
+                android:clickable="true"
+                android:focusable="true"
                 android:padding="10dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.5"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent">
 
+                <FrameLayout
+                    android:id="@+id/name_container_frame"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:clickable="true"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.5"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintVertical_bias="0.5"
+                    android:focusable="true">
+
+                </FrameLayout>
+
+                <ImageView
+                    android:id="@+id/name_edit_icon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="18dp"
+                    android:layout_alignParentStart="true"
+                    android:adjustViewBounds="true"
+                    android:src="@drawable/ic_edit"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:tint="?common.accent" />
+
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:labelFor="@+id/text_room_name"
-                    android:text="Name"
-                    android:textSize="10sp" />
+                    android:text="@string/name"
+                    android:textSize="10sp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
 
                 <TextView
                     android:id="@+id/text_room_name"
                     style="@style/TextAppearance.MaterialComponents.Body1"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:text="Name"
-                    android:textSize="18sp"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
                     android:singleLine="true"
-                    android:ellipsize="end" />
-            </LinearLayout>
+                    android:textSize="18sp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.5"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/name_edit_icon" />
 
-            <LinearLayout
-                android:id="@+id/aboutContainer"
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/outer_description_container"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
                 android:background="@drawable/background_view"
-                android:orientation="vertical"
                 android:padding="10dp"
+                android:clickable="true"
+                android:focusable="true"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.5"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/nameContainer">
+                app:layout_constraintTop_toBottomOf="@+id/outer_name_container">
+
+                <FrameLayout
+                    android:id="@+id/description_container_frame"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:clickable="true"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.5"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintVertical_bias="0.5"
+                    android:focusable="true">
+
+                </FrameLayout>
+
+                <ImageView
+                    android:id="@+id/description_edit_icon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="18dp"
+                    android:layout_alignParentStart="true"
+                    android:adjustViewBounds="true"
+                    android:src="@drawable/ic_edit"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:tint="?common.accent" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:labelFor="@+id/text_room_description"
-                    android:text="Description"
-                    android:textSize="10sp" />
+                    android:text="@string/description"
+                    android:textSize="10sp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
 
                 <TextView
                     android:id="@+id/text_room_description"
                     style="@style/TextAppearance.MaterialComponents.Body1"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Description"
-                    android:textSize="18sp"
                     android:lines="10"
-                    android:scrollbars="vertical" />
-            </LinearLayout>
+                    android:scrollbars="vertical"
+                    android:textSize="18sp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.5"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/description_edit_icon" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/linkContainer"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
                 android:background="@drawable/background_view"
                 android:padding="10dp"
+                android:layout_marginTop="10dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/aboutContainer">
-
+                app:layout_constraintTop_toBottomOf="@+id/outer_description_container">
 
                 <TextView
                     android:id="@+id/textView"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:labelFor="@+id/button_copy_link"
-                    android:text="Copy Invite Link"
+                    android:text="@string/copy_invite_link"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toStartOf="@+id/button_copy_link"
                     app:layout_constraintHorizontal_bias="0.0"
@@ -133,7 +197,7 @@
                 android:layout_marginTop="30dp"
                 android:background="@drawable/background_button"
                 android:paddingHorizontal="15dp"
-                android:text="Leave Room"
+                android:text="@string/leave_room"
                 android:textColor="@color/white"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.5"
@@ -141,27 +205,6 @@
                 app:layout_constraintTop_toBottomOf="@+id/linkContainer" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
-
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:gravity="bottom|end">
-
-            <com.google.android.material.floatingactionbutton.FloatingActionButton
-                android:id="@+id/button_edit_room"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="18dp"
-                android:layout_marginBottom="18dp"
-                android:clickable="true"
-                android:focusable="true"
-                android:src="@drawable/ic_edit"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:backgroundTint="?attr/common.accent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:maxImageSize="32dp"
-                app:tint="@color/white" />
-        </RelativeLayout>
 
     </FrameLayout>
 

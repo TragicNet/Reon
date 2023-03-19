@@ -1,38 +1,38 @@
 package com.example.reon.activities;
 
 import android.Manifest;
-import android.content.Context;
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.WindowManager;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.navigation.NavController;
 
 import com.example.reon.R;
 import com.example.reon.Reon;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.ValueEventListener;
-
-import java.io.File;
+import com.google.firebase.storage.StorageReference;
 
 public abstract class BaseActivity extends AppCompatActivity {
 
-    protected Reon app;
     protected final String TAG;
+    protected Reon app;
+
+    protected NavController navController;
 
     public BaseActivity() {
         this.TAG = ("reon_" + this.getClass().getSimpleName());
+    }
+
+    public Reon getApp() {
+        return app;
     }
 
     @Override
@@ -46,13 +46,31 @@ public abstract class BaseActivity extends AppCompatActivity {
         }
 
         this.app = ((Reon) this.getApplication());
-        if(!this.getClass().equals(SignInActivity.class) && !this.getClass().equals(ProfileEditActivity.class)) {
-            Log.d("_reon","Checking user" + this.getClass());
-            checkUser();
-        }
         // Auto Hide Navigation buttons
-//        this.getWindow().getDecorView().setSystemUiVisibility(
-//                View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
+    }
+
+    public DatabaseReference getDatabaseReference() {
+        return app.getDatabase().getReference();
+    }
+
+    public DatabaseReference getDatabaseReference(String path) {
+        return app.getDatabase().getReference(path);
+    }
+
+    public StorageReference getStorageReference() {
+        return app.getStorage().getReference();
+    }
+
+    public StorageReference getStorageReference(String path) {
+        return app.getStorage().getReference(path);
+    }
+
+    public FirebaseUser getCurrentUser() {
+        return app.getCurrentUser();
+    }
+
+    public void init() {
+        init("Reon", false);
     }
 
     public void init(String title, boolean upEnabled) {
@@ -65,55 +83,18 @@ public abstract class BaseActivity extends AppCompatActivity {
         toolbar.setDisplayHomeAsUpEnabled(upEnabled);
     }
 
-    public void init() {
-        init("Reon", false);
-    }
-    
-    private void checkUser() {
-        // go to profile if logged
-        if (app.getCurrentUser() == null) {
-            // go to sign in activity if not signed in
-            startActivity(new Intent(getApplicationContext(), SignInActivity.class));
-            finishAffinity();
-        } else {
-            // get name of the user
-            DatabaseReference userRef = app.getDatabase().getReference("users").child(app.getCurrentUser().getUid());
-            userRef.addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                    String name = (String) dataSnapshot.child("name").getValue();
-                    //Log.d(TAG, "Username: " + name);
-                    // go to sign in activity if no name
-                    if(name == null) {
-                        Intent intent = new Intent(getApplicationContext(), DashboardActivity.class);
-                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                        startActivity(intent);
-                    }
-                }
-                @Override
-                public void onCancelled(@NonNull DatabaseError databaseError) {
-                    Log.d(TAG, databaseError.getMessage());
-                }
-            });
-        }
-    }
-
-    public  boolean isStoragePermissionGranted() {
+    public void storagePermissionGranted() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
                     == PackageManager.PERMISSION_GRANTED) {
-                Log.v(TAG,"Permission is granted");
-                return true;
+                Log.v(TAG, "Permission is granted");
             } else {
 
-                Log.v(TAG,"Permission is revoked");
+                Log.v(TAG, "Permission is revoked");
                 ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
-                return false;
             }
-        }
-        else { //permission is automatically granted on sdk<23 upon installation
-            Log.v(TAG,"Permission is granted");
-            return true;
+        } else { //permission is automatically granted on sdk<23 upon installation
+            Log.v(TAG, "Permission is granted");
         }
     }
 
@@ -125,4 +106,9 @@ public abstract class BaseActivity extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
     }
+
+    public NavController getNavController() {
+        return this.navController;
+    }
+
 }

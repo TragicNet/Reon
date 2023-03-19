@@ -2,8 +2,6 @@ package com.example.reon.classes;
 
 import android.app.AlertDialog;
 import android.content.Context;
-import android.graphics.drawable.Drawable;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
@@ -12,7 +10,7 @@ import android.widget.TextView;
 import com.example.reon.R;
 
 public class AlertDialogBuilder extends AlertDialog.Builder {
-    private View alertTitleView;
+    private final View alertTitleView;
 
     public AlertDialogBuilder(Context context) {
         super(context, R.style.CustomAlertDialog);

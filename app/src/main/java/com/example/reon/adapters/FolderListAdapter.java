@@ -17,8 +17,8 @@ import java.util.ArrayList;
 
 public class FolderListAdapter extends RecyclerView.Adapter<FolderListAdapter.ViewHolder> {
     private ArrayList<Folder> folders;
-    private Context context;
-    private FolderListAdapter.OnFolderListener listener;
+    private final Context context;
+    private final FolderListAdapter.OnFolderListener listener;
 
     public FolderListAdapter(Context context, ArrayList<Folder> folders, FolderListAdapter.OnFolderListener listener) {
         this.folders = folders;
@@ -34,7 +34,7 @@ public class FolderListAdapter extends RecyclerView.Adapter<FolderListAdapter.Vi
     @Override
     public FolderListAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_folder, parent, false);
-        return new FolderListAdapter.ViewHolder(view, listener);
+        return new ViewHolder(view, listener);
     }
 
     @Override
@@ -47,7 +47,7 @@ public class FolderListAdapter extends RecyclerView.Adapter<FolderListAdapter.Vi
         return folders.size();
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {
+    public static class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {
         public TextView name;
         public ImageView image;
 

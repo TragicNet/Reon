@@ -1,21 +1,22 @@
 package com.example.reon.classes;
 
 import java.util.ArrayList;
-import java.util.Date;
 
 public class Folder {
     private String id;
     private String created_at;
     private String name;
+    private String link;
     private String created_by;
     private ArrayList<String> filesList;
 
     public Folder() {}
 
-    public Folder(String id, String created_at, String name, String created_by, ArrayList<String> filesList) {
+    public Folder(String id, String created_at, String name, String link, String created_by, ArrayList<String> filesList) {
         this.id = id;
         this.created_at = created_at;
         this.name = name;
+        this.link = link;
         this.created_by = created_by;
         this.filesList = filesList;
     }
@@ -42,6 +43,14 @@ public class Folder {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getLink() {
+        return link;
+    }
+
+    public void setLink(String link) {
+        this.link = link;
     }
 
     public String getCreated_by() {

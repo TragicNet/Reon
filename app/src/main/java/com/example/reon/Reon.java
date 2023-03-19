@@ -5,7 +5,7 @@ import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
-import android.util.Log;
+import android.os.Environment;
 
 import androidx.annotation.RequiresApi;
 
@@ -15,8 +15,6 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
 
 import java.io.File;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
 
@@ -29,7 +27,7 @@ public class Reon extends Application {
 //    public static final String rootPath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/Reon/";
     public static String downloadsDirectory;
 
-    public SimpleDateFormat dateTimeFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm", Locale.US);
+    public final SimpleDateFormat dateTimeFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm", Locale.US);
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
@@ -39,10 +37,17 @@ public class Reon extends Application {
         storage = FirebaseStorage.getInstance();
         database.setPersistenceEnabled(true);
 
+        File f = new File(Environment.getExternalStorageDirectory(), "Reon/downloads");
+        if (!f.exists()) {
+            f.mkdirs();
+        }
 
-        Path filesDirectory = Paths.get(getApplicationContext().getExternalFilesDir(null).getAbsolutePath());
-        downloadsDirectory = filesDirectory + "/downloads/";
-        Log.d(TAG, "rootPath: " + downloadsDirectory);
+//        Path filesDirectory = Paths.get(getApplicationContext().getExternalFilesDir(null).getAbsolutePath());
+//        downloadsDirectory = filesDirectory + "/downloads/";
+        downloadsDirectory = f.getAbsolutePath() + "/";
+
+//        Log.d(TAG, "rootPath: " + downloadsDirectory);
+
     }
 
     public FirebaseAuth getAuth() {

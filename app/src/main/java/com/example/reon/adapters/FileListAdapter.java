@@ -22,8 +22,8 @@ import java.util.Arrays;
 
 public class FileListAdapter extends RecyclerView.Adapter<FileListAdapter.ViewHolder> {
     private ArrayList<File> files;
-    private Context context;
-    private FileListAdapter.OnFileListener listener;
+    private final Context context;
+    private final FileListAdapter.OnFileListener listener;
 
     public FileListAdapter(Context context, ArrayList<File> files,
                         FileListAdapter.OnFileListener listener) {
@@ -44,15 +44,14 @@ public class FileListAdapter extends RecyclerView.Adapter<FileListAdapter.ViewHo
     @Override
     public FileListAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_file, parent, false);
-        return new FileListAdapter.ViewHolder(view, listener);
+        return new ViewHolder(view, listener);
     }
 
     @Override
     public void onBindViewHolder(@NonNull FileListAdapter.ViewHolder holder, int position) {
         File file = files.get(position);
 //        Log.d("reon_FileListAdapter", "name: " + file.getName());
-        java.io.File temp = new java.io.File((Reon.downloadsDirectory + file.getName()));
-        Log.d("reon_FileListAdapter", "temp: " + temp.getAbsolutePath());
+        java.io.File temp = new java.io.File(Reon.downloadsDirectory + file.getName());
         ImageView downloadIcon = holder.itemView.findViewById(R.id.file_item_download);
         if (temp.exists()) {
             downloadIcon.setVisibility(View.GONE);
@@ -63,7 +62,7 @@ public class FileListAdapter extends RecyclerView.Adapter<FileListAdapter.ViewHo
             } else {
                 downloadIcon.setImageResource(R.drawable.ic_download);
             }
-            Log.d("reon_FileListAdapter", "Does not exist " + file.getName());
+            Log.d("reon_FileListAdapter", "Does not exist " + temp.getAbsolutePath());
         }
         holder.name.setText(file.getName());
         holder.date.setText(file.getCreated_at());
@@ -133,7 +132,7 @@ public class FileListAdapter extends RecyclerView.Adapter<FileListAdapter.ViewHo
         files.get(position).setThumbnail(null);
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {
+    public static class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {
         public TextView name;
         public TextView date;
         public ImageView image;
