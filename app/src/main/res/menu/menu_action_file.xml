@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/menuItem_selectAllFiles"
+        android:title="@string/select_all"
+        android:icon="@drawable/ic_select_all"
+        app:iconTint="@color/white"
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/menuItem_downloadFile"
+        android:title="@string/download"
+        android:icon="@drawable/ic_save"
+        app:iconTint="@color/white"
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/menuItem_deleteFile"
+        android:title="@string/delete"
+        android:icon="@drawable/ic_delete"
+        app:iconTint="@color/white"
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/menuItem_shareFile"
+        android:title="@string/share"
+        android:icon="@drawable/ic_share"
+        app:iconTint="@color/white"
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/menuItem_infoFile"
+        android:title="@string/info"
+        android:icon="@drawable/ic_info"
+        app:iconTint="@color/white"
+        app:showAsAction="always" />
+
+</menu>

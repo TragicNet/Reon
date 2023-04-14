@@ -3,11 +3,15 @@ package com.example.reon.adapters;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Filter;
+import android.widget.Filterable;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -16,29 +20,67 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.reon.R;
 import com.example.reon.Reon;
 import com.example.reon.classes.File;
+import com.example.reon.classes.Room;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
-public class FileListAdapter extends RecyclerView.Adapter<FileListAdapter.ViewHolder> {
+public class FileListAdapter extends RecyclerView.Adapter<FileListAdapter.ViewHolder> implements Filterable {
+    private final String TAG = "reon_FileListAdapter";
     private ArrayList<File> files;
+    private ArrayList<File> allFiles;
     private final Context context;
     private final FileListAdapter.OnFileListener listener;
 
     public FileListAdapter(Context context, ArrayList<File> files,
                         FileListAdapter.OnFileListener listener) {
         this.files = files;
+        this.allFiles = files;
         this.context = context;
         this.listener = listener;
     }
 
     public void setFiles(ArrayList<File> files) {
         this.files = files;
+        this.allFiles = files;
     }
 
     public void startDownloading(int position) { files.get(position).setDownloading(true); }
 
     public void stopDownloading(int position) { files.get(position).setDownloading(false); }
+
+    @Override
+    public Filter getFilter() {
+        return fileFilter;
+    }
+
+    private final Filter fileFilter = new Filter() {
+        @Override
+        protected FilterResults performFiltering(CharSequence constraint) {
+            List<File> filteredList = new ArrayList<>();
+            if (constraint.toString().isEmpty()) {
+                filteredList.addAll(allFiles);
+            } else {
+                String filterPattern = constraint.toString().toLowerCase().trim();
+
+                for (File file : allFiles) {
+                    if (file.getName().toLowerCase().contains(filterPattern)) {
+                        filteredList.add(file);
+                    }
+                }
+            }
+            FilterResults results = new FilterResults();
+            results.values = filteredList;
+            return results;
+        }
+
+        @Override
+        protected void publishResults(CharSequence constraint, FilterResults results) {
+            files = (ArrayList<File>) results.values;
+            notifyDataSetChanged();
+        }
+    };
 
     @NonNull
     @Override
@@ -62,7 +104,7 @@ public class FileListAdapter extends RecyclerView.Adapter<FileListAdapter.ViewHo
             } else {
                 downloadIcon.setImageResource(R.drawable.ic_download);
             }
-            Log.d("reon_FileListAdapter", "Does not exist " + temp.getAbsolutePath());
+//            Log.d("reon_FileListAdapter", "Does not exist " + temp.getAbsolutePath());
         }
         holder.name.setText(file.getName());
         holder.date.setText(file.getCreated_at());
@@ -73,24 +115,21 @@ public class FileListAdapter extends RecyclerView.Adapter<FileListAdapter.ViewHo
             ext = file.getName().substring(file.getName().lastIndexOf("."));
         }
         if(Arrays.asList(".png", ".jpg", ".jpeg", ".gif", ".bmp").contains(ext)) {
-            boolean setImage = false;
             if(temp.exists()) {
-                if(file.getThumbnail() == null) {
-//                    Log.d("reon_FileListAdapter", "path: " + temp.getPath());
-                    Bitmap bitmap = getPreview(temp.getPath());
+                Bitmap bitmap = getPreview(temp.getPath());
 
-                    if(bitmap != null) {
-                        file.setThumbnail(bitmap);
-                        holder.image.setImageBitmap(bitmap);
+                if(bitmap != null) {
+                    holder.image.setImageBitmap(bitmap);
 //                        ImageViewCompat.setImageTintList(holder.image, null);
-                        setImage = true;
-                    }
+                } else {
+                    Log.d(TAG, file.getName() + " bitmap null");
                 }
-            }
-            if (!setImage){
+            } else {
                 holder.image.setImageResource(R.drawable.ic_image);
-//                ImageViewCompat.setImageTintList(holder.image, ColorStateList.valueOf(android.R.attr.colorAccent));
             }
+
+//                ImageViewCompat.setImageTintList(holder.image, ColorStateList.valueOf(android.R.attr.colorAccent));
+
         } else if(Arrays.asList(".mp3", ".wav", ".ogg", ".midi").contains(ext)) {
             holder.image.setImageResource(R.drawable.ic_audio);
         } else if(Arrays.asList(".mp4", ".rmvb", ".avi", ".flv", ".3gp").contains(ext)) {
@@ -112,6 +151,13 @@ public class FileListAdapter extends RecyclerView.Adapter<FileListAdapter.ViewHo
         } else {
             holder.image.setImageResource(R.drawable.ic_file);
         }
+
+        if (file.isSelected()) {
+            holder.itemView.setBackgroundColor(context.getResources().getColor(R.color.ui_selection_bg));
+        } else {
+            holder.itemView.setBackgroundColor(Color.TRANSPARENT);
+        }
+
     }
 
     Bitmap getPreview(String path) {
@@ -128,8 +174,50 @@ public class FileListAdapter extends RecyclerView.Adapter<FileListAdapter.ViewHo
         return files.size();
     }
 
-    public void removeThumbnail(int position) {
-        files.get(position).setThumbnail(null);
+    public int getSelectionCount() {
+        int count = 0;
+        for (File file : files) {
+            if (file.isSelected())
+                count++;
+        }
+        return count;
+    }
+
+    public void clearSelection() {
+        int position = 0;
+        for (File file : files) {
+            if (file.isSelected()) {
+                file.setSelected(false);
+                notifyItemChanged(position);
+            }
+            position++;
+        }
+    }
+
+    public void selectAll() {
+        for (File file : files) {
+            file.setSelected(true);
+        }
+        notifyDataSetChanged();
+    }
+
+    public List<File> getSelectedFiles() {
+        List<File> selectedFiles = new ArrayList<File>();
+        for(File file : files) {
+            if(file.isSelected())
+                selectedFiles.add(file);
+        }
+        return selectedFiles;
+    }
+
+
+//    public void removeThumbnail(int position) {
+//        files.get(position).setThumbnail(null);
+//    }
+
+    public void toggleSelection(int position) {
+        files.get(position).setSelected(!files.get(position).isSelected());
+        notifyItemChanged(position);
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {

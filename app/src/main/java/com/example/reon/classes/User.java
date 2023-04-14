@@ -6,6 +6,7 @@ import com.google.firebase.database.Exclude;
 import com.google.firebase.database.IgnoreExtraProperties;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 @IgnoreExtraProperties
 public class User {
@@ -14,6 +15,9 @@ public class User {
     private String name;
     private String about;
     private ArrayList<String> roomList;
+
+    @Exclude
+    private boolean admin = false;
 
     public User() {}
 
@@ -25,18 +29,10 @@ public class User {
         this.roomList = roomList;
     }
 
-    @Exclude
-    @NonNull
-    @Override
-    public String toString() {
-        return String.format("\nId: %s\nEmail: %s\nName: %s\nAbout: %s\nRooms: %s", id, email, name, about, roomList);
-    }
-
     public void setId(String id) {
         this.id = id;
     }
 
-    @Exclude
     public String getId() {
         return id;
     }
@@ -72,4 +68,38 @@ public class User {
     public void setRoomList(ArrayList<String> roomList) {
         this.roomList = roomList;
     }
+
+    public boolean isAdmin() { return admin; }
+
+    public void setAdmin(boolean admin) { this.admin = admin; }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o instanceof User) {
+            return (Objects.equals(id, ((User) o).id));
+        }
+        else {
+            return false;
+        }
+    }
+
+//    @Override
+//    public String toString() {
+//        return "User{" +
+//                "id='" + id + '\'' +
+//                ", email='" + email + '\'' +
+//                ", name='" + name + '\'' +
+//                ", about='" + about + '\'' +
+//                ", roomList=" + roomList +
+//                ", admin=" + admin +
+//                '}';
+//    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "name='" + name + '\'' +
+                '}';
+    }
+
 }

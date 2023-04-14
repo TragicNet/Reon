@@ -81,4 +81,18 @@ public class Room {
     public ArrayList<String> getFolderList() { return folderList; }
 
     public void setFolderList(ArrayList<String> folderList) { this.folderList = folderList; }
+
+    @Override
+    public String toString() {
+        return "Room{" +
+                "id='" + id + '\'' +
+                ", created_at='" + created_at + '\'' +
+                ", name='" + name + '\'' +
+//                ", description='" + description + '\'' +
+                ", link='" + link + '\'' +
+                ", adminList=" + adminList +
+                ", memberList=" + memberList +
+                ", folderList=" + folderList +
+                '}';
+    }
 }

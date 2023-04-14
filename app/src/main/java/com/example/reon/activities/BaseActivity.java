@@ -13,6 +13,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.navigation.NavController;
+import androidx.navigation.fragment.NavHostFragment;
 
 import com.example.reon.R;
 import com.example.reon.Reon;
@@ -23,16 +24,16 @@ import com.google.firebase.storage.StorageReference;
 public abstract class BaseActivity extends AppCompatActivity {
 
     protected final String TAG;
-    protected Reon app;
 
     protected NavController navController;
+    protected NavHostFragment navHostFragment;
 
     public BaseActivity() {
         this.TAG = ("reon_" + this.getClass().getSimpleName());
     }
 
     public Reon getApp() {
-        return app;
+        return (Reon) this.getApplication();
     }
 
     @Override
@@ -44,29 +45,26 @@ public abstract class BaseActivity extends AppCompatActivity {
         if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
         }
-
-        this.app = ((Reon) this.getApplication());
-        // Auto Hide Navigation buttons
     }
 
     public DatabaseReference getDatabaseReference() {
-        return app.getDatabase().getReference();
+        return getApp().getDatabase().getReference();
     }
 
     public DatabaseReference getDatabaseReference(String path) {
-        return app.getDatabase().getReference(path);
+        return getApp().getDatabase().getReference(path);
     }
 
     public StorageReference getStorageReference() {
-        return app.getStorage().getReference();
+        return getApp().getStorage().getReference();
     }
 
     public StorageReference getStorageReference(String path) {
-        return app.getStorage().getReference(path);
+        return getApp().getStorage().getReference(path);
     }
 
     public FirebaseUser getCurrentUser() {
-        return app.getCurrentUser();
+        return getApp().getCurrentUser();
     }
 
     public void init() {
@@ -85,16 +83,9 @@ public abstract class BaseActivity extends AppCompatActivity {
 
     public void storagePermissionGranted() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                    == PackageManager.PERMISSION_GRANTED) {
-                Log.v(TAG, "Permission is granted");
-            } else {
-
-                Log.v(TAG, "Permission is revoked");
+            if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
                 ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
             }
-        } else { //permission is automatically granted on sdk<23 upon installation
-            Log.v(TAG, "Permission is granted");
         }
     }
 
@@ -103,12 +94,19 @@ public abstract class BaseActivity extends AppCompatActivity {
         int itemId = item.getItemId();
         if (itemId == android.R.id.home) {
             onBackPressed();
+            return true;
         }
-        return super.onOptionsItemSelected(item);
+        return false;
     }
 
     public NavController getNavController() {
         return this.navController;
+    }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        Log.d(TAG, "Navigate Up");
+        return navController.popBackStack() || super.onSupportNavigateUp();
     }
 
 }

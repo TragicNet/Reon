@@ -12,21 +12,23 @@ public class File {
     private String name;
     private String type;
     private String uploaded_by;
+    private String link;
     private String uri;
 
     @Exclude
-    private Bitmap thumbnail;
-    @Exclude
     private boolean downloading = false;
+    @Exclude
+    private boolean selected = false;
 
     public File() {}
 
-    public File(String id, String created_at, String name, String type, String uploaded_by, String uri) {
+    public File(String id, String created_at, String name, String type, String uploaded_by, String link, String uri) {
         this.id = id;
         this.created_at = created_at;
         this.name = name;
         this.type = type;
         this.uploaded_by = uploaded_by;
+        this.link = link;
         this.uri = uri;
     }
 
@@ -66,10 +68,6 @@ public class File {
         this.uploaded_by = uploaded_by;
     }
 
-    public Bitmap getThumbnail() { return thumbnail; }
-
-    public void setThumbnail(Bitmap thumbnail) { this.thumbnail = thumbnail; }
-
     public boolean isDownloading() { return downloading; }
 
     public void setDownloading(boolean downloading) { this.downloading = downloading; }
@@ -82,7 +80,22 @@ public class File {
         this.uri = uri;
     }
 
-    @NonNull
+    public boolean isSelected() {
+        return selected;
+    }
+
+    public void setSelected(boolean selected) {
+        this.selected = selected;
+    }
+
+    public String getLink() {
+        return link;
+    }
+
+    public void setLink(String link) {
+        this.link = link;
+    }
+
     @Override
     public String toString() {
         return "File{" +
@@ -91,9 +104,10 @@ public class File {
                 ", name='" + name + '\'' +
                 ", type='" + type + '\'' +
                 ", uploaded_by='" + uploaded_by + '\'' +
+                ", link='" + link + '\'' +
                 ", uri='" + uri + '\'' +
-                ", thumbnail=" + thumbnail +
                 ", downloading=" + downloading +
+                ", selected=" + selected +
                 '}';
     }
 }

@@ -1,8 +1,10 @@
 package com.example.reon.fragments;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -10,10 +12,12 @@ import androidx.appcompat.app.ActionBar;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.NavOptions;
+import androidx.navigation.fragment.NavHostFragment;
 
 import com.example.reon.R;
 import com.example.reon.Reon;
 import com.example.reon.activities.BaseActivity;
+import com.example.reon.activities.MainActivity;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -39,12 +43,12 @@ public abstract class BaseFragment extends Fragment {
 
     public FirebaseUser getCurrentUser() { return ((BaseActivity) requireActivity()).getCurrentUser(); }
 
-    public BaseActivity getMainActivity() {    return (BaseActivity) requireActivity();    }
+    public MainActivity getMainActivity() {    return (MainActivity) requireActivity();    }
 
     public void init() {    init("Reon", false);    }
 
     public void init(String title, boolean upEnabled) {
-        ActionBar toolbar = ((BaseActivity) requireActivity()).getSupportActionBar();
+        ActionBar toolbar = getMainActivity().getSupportActionBar();
         assert toolbar != null;
         toolbar.setTitle(title);
         toolbar.setDisplayHomeAsUpEnabled(upEnabled);
@@ -53,14 +57,14 @@ public abstract class BaseFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        assert getParentFragment() != null;
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
+        setHideSoftKeyboard();
         if(!this.getClass().equals(SignInFragment.class) && !this.getClass().equals(ProfileCreateFragment.class)) {
-            Log.d(TAG,"Checking user" + this.getClass());
             checkUser();
         }
 
@@ -93,8 +97,13 @@ public abstract class BaseFragment extends Fragment {
     }
 
     public void openSignInFragment() {
-        Log.d(TAG, "going to SignInFragment");
         getNavController().navigate(R.id.signInFragment, null, new NavOptions.Builder().setPopUpTo(R.id.dashboardFragment, true).build());
+    }
+
+    public void setHideSoftKeyboard() {
+        InputMethodManager mInputMethodManager = (InputMethodManager) getMainActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+        View view = getMainActivity().findViewById(R.id.activity_main);
+        mInputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
 
     public NavController getNavController() {

@@ -6,6 +6,7 @@
     android:layout_height="match_parent"
     android:background="?ui.panel.border"
     android:orientation="vertical"
+    android:id = "@+id/activity_main"
     tools:context=".activities.MainActivity">
 
     <include

@@ -151,6 +151,7 @@ public class SignInFragment extends BaseFragment {
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                         if(!dataSnapshot.exists()) {
                             Map<String, Object> userMap = new HashMap<>();
+                            userMap.put("id", uid);
                             userMap.put("email", firebaseUser.getEmail());
                             userRef.updateChildren(userMap);
                         }

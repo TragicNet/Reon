@@ -1,11 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
         android:id="@+id/menuItem_rename"
         android:title="@string/rename" />
 
     <item
-        android:id="@+id/menuItem_refresh"
-        android:title="@string/refresh" />
+        android:id="@+id/menuItem_shareFolder"
+        android:title="@string/share" />
+
+    <item
+        android:id="@+id/menuItem_searchFile"
+        android:title="@string/search"
+        app:showAsAction="ifRoom|withText"
+        app:actionViewClass="android.widget.SearchView" />
 </menu>

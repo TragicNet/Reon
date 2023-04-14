@@ -10,6 +10,8 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
+import android.widget.SearchView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -27,8 +29,12 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.dynamiclinks.DynamicLink;
+import com.google.firebase.dynamiclinks.FirebaseDynamicLinks;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class DashboardFragment extends BaseFragment implements RoomListAdapter.OnRoomListener {
 
@@ -55,8 +61,6 @@ public class DashboardFragment extends BaseFragment implements RoomListAdapter.O
         // Inflate the layout for this fragment
         binding = FragmentDashboardBinding.inflate(inflater, container, false);
 
-        Log.d(TAG, "creating dashboard");
-
         if(getCurrentUser() != null) {
             userRoomsRef = getDatabaseReference("users").child(getCurrentUser().getUid()).child("roomList");
             allRoomsRef = getDatabaseReference("rooms");
@@ -80,11 +84,27 @@ public class DashboardFragment extends BaseFragment implements RoomListAdapter.O
             @Override
             public void onCreateMenu(@NonNull Menu menu, @NonNull MenuInflater menuInflater) {
                 menuInflater.inflate(R.menu.menu_dashboard, menu);
+                MenuItem searchItem = menu.findItem(R.id.menuItem_searchRoom);
+                SearchView searchView = (SearchView) searchItem.getActionView();
+                searchView.setImeOptions(EditorInfo.IME_ACTION_DONE);
+                searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+                    @Override
+                    public boolean onQueryTextSubmit(String query) {
+                        roomListAdapter.getFilter().filter(query);
+                        return false;
+                    }
+                    @Override
+                    public boolean onQueryTextChange(String query) {
+                        roomListAdapter.getFilter().filter(query);
+                        return false;
+                    }
+                });
             }
 
             @Override
             public boolean onMenuItemSelected(@NonNull MenuItem menuItem) {
                 int itemId = menuItem.getItemId();
+
                 if (itemId == R.id.menuItem_profile) {
                     getNavController().navigate(R.id.action_dashboardFragment_to_profileFragment);
                 } else if (itemId == R.id.menuItem_settings) {
@@ -155,7 +175,7 @@ public class DashboardFragment extends BaseFragment implements RoomListAdapter.O
         // Setup bundle
         Bundle bundle = new Bundle();
         bundle.putString("roomId", rooms.get(position).getId());
-        getMainActivity().getNavController().navigate(R.id.action_dashboardFragment_to_roomFragment, bundle);
+        getNavController().navigate(R.id.action_dashboardFragment_to_roomFragment, bundle);
     }
 
 }

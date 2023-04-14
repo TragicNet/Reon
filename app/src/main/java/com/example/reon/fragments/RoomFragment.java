@@ -1,8 +1,12 @@
 package com.example.reon.fragments;
 
 import android.app.AlertDialog;
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -11,7 +15,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
+import android.widget.SearchView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -22,6 +28,7 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.reon.R;
+import com.example.reon.activities.MainActivity;
 import com.example.reon.adapters.FolderListAdapter;
 import com.example.reon.classes.AlertDialogBuilder;
 import com.example.reon.classes.Folder;
@@ -44,16 +51,20 @@ public class RoomFragment extends BaseFragment implements FolderListAdapter.OnFo
 
     private FragmentRoomBinding binding;
 
-    private DatabaseReference roomFoldersRef, allFoldersRef;
+    private DatabaseReference roomFoldersRef;
+    private DatabaseReference allFoldersRef;
 
     String roomId = "",
             roomName = "";
 
+    public ArrayList<String> adminIds = new ArrayList<>();
     ArrayList<String> folderIds = new ArrayList<>();
-    ArrayList<String> adminIds = new ArrayList<>();
+
     ArrayList<Folder> folders = new ArrayList<>();
     private FolderListAdapter folderListAdapter;
     private Uri dynamicLinkUri;
+    private String roomLink;
+    private DatabaseReference roomRef;
 
     public RoomFragment() {
         // Required empty public constructor
@@ -70,21 +81,13 @@ public class RoomFragment extends BaseFragment implements FolderListAdapter.OnFo
             getNavController().navigate(R.id.action_roomFragment_to_folderFragment, bundle);
         }
 
-        DatabaseReference roomRef = getDatabaseReference("rooms").child(roomId);
-        roomRef.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (snapshot.exists()) {
-                    roomName = (String) snapshot.child("name").getValue();
-                    init( roomName, true);
-                }
-            }
+        roomFoldersRef = getDatabaseReference("rooms").child(roomId).child("folderList");
+        allFoldersRef = getDatabaseReference("folders");
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                Log.d(TAG, error.getMessage());
-            }
-        });
+        initializeAdminList();
+
+        roomRef = getDatabaseReference("rooms").child(roomId);
+        roomRef.addValueEventListener(roomValueListener);
 
         getParentFragmentManager().setFragmentResultListener("editedName", this, (requestKey, bundle1) -> {
             // We use a String here, but any type that can be put in a Bundle is supported
@@ -92,20 +95,41 @@ public class RoomFragment extends BaseFragment implements FolderListAdapter.OnFo
             init(roomName, true);
             // Do something with the result
         });
-
-
     }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        roomRef.addValueEventListener(roomValueListener);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        roomRef.removeEventListener(roomValueListener);
+    }
+
+    ValueEventListener roomValueListener = new ValueEventListener() {
+        @Override
+        public void onDataChange(@NonNull DataSnapshot snapshot) {
+            if (snapshot.exists()) {
+                roomName = (String) snapshot.child("name").getValue();
+                roomLink = (String) snapshot.child("link").getValue();
+                init( roomName, true);
+            }
+        }
+
+        @Override
+        public void onCancelled(@NonNull DatabaseError error) {
+            Log.d(TAG, error.getMessage());
+        }
+    };
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         binding = FragmentRoomBinding.inflate(inflater, container, false);
-
-        roomFoldersRef = getDatabaseReference("rooms").child(roomId).child("folderList");
-        allFoldersRef = getDatabaseReference("folders");
-
-        initializeAdminList();
 
         initializeRecyclerView();
 
@@ -123,40 +147,41 @@ public class RoomFragment extends BaseFragment implements FolderListAdapter.OnFo
             @Override
             public void onCreateMenu(@NonNull Menu menu, @NonNull MenuInflater menuInflater) {
                 menuInflater.inflate(R.menu.menu_room, menu);
+                MenuItem searchItem = menu.findItem(R.id.menuItem_searchFolder);
+                SearchView searchView = (SearchView) searchItem.getActionView();
+                searchView.setImeOptions(EditorInfo.IME_ACTION_DONE);
+                searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+                    @Override
+                    public boolean onQueryTextSubmit(String query) {
+                        folderListAdapter.getFilter().filter(query);
+                        return false;
+                    }
+                    @Override
+                    public boolean onQueryTextChange(String query) {
+                        folderListAdapter.getFilter().filter(query);
+                        return false;
+                    }
+                });
             }
 
             @Override
             public boolean onMenuItemSelected(@NonNull MenuItem menuItem) {
                 int itemId = menuItem.getItemId();
                 if (itemId == R.id.menuItem_roomInfo) {
-
                     Bundle bundle = new Bundle();
                     bundle.putString("roomId", roomId);
                     getNavController().navigate(R.id.action_roomFragment_to_roomInfoFragment, bundle);
+                    return true;
+                } else if (itemId == R.id.menuItem_shareRoom) {
+                    ClipboardManager clipboard = (ClipboardManager) getMainActivity().getSystemService(Context.CLIPBOARD_SERVICE);
+                    ClipData clip = ClipData.newPlainText(roomName, roomLink);
+                    clipboard.setPrimaryClip(clip);
+                    Toast.makeText(getMainActivity(), "Copied link to Clipboard!", Toast.LENGTH_SHORT).show();
+                    return true;
                 }
-                return true;
+                return false;
             }
         }, getViewLifecycleOwner(), Lifecycle.State.RESUMED);
-    }
-
-    private void initializeAdminList() {
-
-        DatabaseReference roomAdminsRef = getDatabaseReference("rooms").child(roomId).child("adminList");
-        roomAdminsRef.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (snapshot.exists()) {
-                    adminIds.clear();
-                    for (DataSnapshot ds : snapshot.getChildren()) {
-                        adminIds.add((String) ds.getValue());
-                    }
-                }
-            }
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                Log.d(TAG, error.getMessage());
-            }
-        });
     }
 
     private void initializeRecyclerView() {
@@ -234,7 +259,6 @@ public class RoomFragment extends BaseFragment implements FolderListAdapter.OnFo
                 Log.d(TAG, "deleting folder: " + folders.get(position).getName());
 
                 roomFoldersRef.removeEventListener(roomFoldersListener);
-
                 allFoldersRef.addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -298,10 +322,6 @@ public class RoomFragment extends BaseFragment implements FolderListAdapter.OnFo
             AlertDialog deleteFolderDialog = builder.create();
             deleteFolderDialog.show();
         }
-    }
-
-    private boolean isAdmin() {
-        return adminIds.contains(getCurrentUser().getUid());
     }
 
     private void createNewFolder() {
@@ -381,4 +401,28 @@ public class RoomFragment extends BaseFragment implements FolderListAdapter.OnFo
 
     }
 
+    public void initializeAdminList() {
+
+        DatabaseReference roomAdminsRef = getDatabaseReference("rooms").child(roomId).child("adminList");
+        roomAdminsRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()) {
+                    adminIds.clear();
+                    for (DataSnapshot ds : snapshot.getChildren()) {
+                        adminIds.add((String) ds.getValue());
+                    }
+                    getMainActivity().setAdminIds(adminIds);
+                }
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.d(TAG, error.getMessage());
+            }
+        });
+    }
+
+    public boolean isAdmin() {
+        return adminIds.contains(getCurrentUser().getUid());
+    }
 }

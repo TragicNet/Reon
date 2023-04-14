@@ -12,16 +12,19 @@
         tools:layout="@layout/fragment_dashboard" >
         <action
             android:id="@+id/action_dashboardFragment_to_roomFragment"
-            app:destination="@id/roomFragment" />
+            app:destination="@id/roomFragment"
+            app:popUpTo="@+id/dashboardFragment"/>
         <action
             android:id="@+id/action_dashboardFragment_to_roomCreateFragment"
-            app:destination="@id/roomCreateFragment" />
+            app:destination="@id/roomCreateFragment"
+            app:popUpTo="@+id/dashboardFragment"/>
         <action
             android:id="@+id/action_dashboardFragment_to_signInFragment"
             app:destination="@id/signInFragment" />
         <action
             android:id="@+id/action_dashboardFragment_to_profileFragment"
-            app:destination="@id/profileFragment" />
+            app:destination="@id/profileFragment"
+            app:popUpTo="@+id/dashboardFragment"/>
     </fragment>
 
     <fragment
@@ -31,7 +34,8 @@
         tools:layout="@layout/fragment_folder">
         <action
             android:id="@+id/action_folderFragment_to_roomFragment"
-            app:destination="@id/roomFragment" />
+            app:destination="@id/roomFragment"
+            app:popUpTo="@+id/folderFragment"/>
         <argument
             android:name="roomId"
             app:argType="string" />
@@ -43,6 +47,10 @@
             app:action="OPEN_FOLDER_ACTION"
             app:mimeType="type/sbtype"
             app:uri="reon1.page.link?roomid={roomId}&amp;folderid={folderId}" />
+        <action
+            android:id="@+id/action_folderFragment_to_fileInfoFragment"
+            app:destination="@id/fileInfoFragment"
+            app:popUpTo="@+id/folderFragment"/>
     </fragment>
 
     <fragment
@@ -50,9 +58,6 @@
         android:name="com.example.reon.fragments.ProfileFragment"
         android:label="fragment_profile"
         tools:layout="@layout/fragment_profile" >
-        <action
-            android:id="@+id/action_profileFragment_to_dashboardFragment"
-            app:destination="@id/dashboardFragment" />
     </fragment>
 
     <fragment
@@ -67,14 +72,13 @@
         android:label="fragment_room"
         tools:layout="@layout/fragment_room">
         <action
-            android:id="@+id/action_roomFragment_to_dashboardFragment"
-            app:destination="@id/dashboardFragment" />
-        <action
             android:id="@+id/action_roomFragment_to_folderFragment"
-            app:destination="@id/folderFragment" />
+            app:destination="@id/folderFragment"
+            app:popUpTo="@+id/roomFragment"/>
         <action
             android:id="@+id/action_roomFragment_to_roomInfoFragment"
-            app:destination="@id/roomInfoFragment" />
+            app:destination="@id/roomInfoFragment"
+            app:popUpTo="@+id/roomFragment"/>
         <argument
             android:name="roomId"
             app:argType="string" />
@@ -91,11 +95,9 @@
         android:label="fragment_room"
         tools:layout="@layout/fragment_room_create" >
         <action
-            android:id="@+id/action_roomCreateFragment_to_dashboardFragment"
-            app:destination="@id/dashboardFragment" />
-        <action
             android:id="@+id/action_roomCreateFragment_to_roomFragment"
-            app:destination="@id/roomFragment" />
+            app:destination="@id/roomFragment"
+            app:popUpTo="@+id/dashboardFragment"/>
     </fragment>
 
     <fragment
@@ -104,11 +106,8 @@
         android:label="fragment_room_info"
         tools:layout="@layout/fragment_room_info" >
         <action
-            android:id="@+id/action_roomInfoFragment_to_roomFragment"
-            app:destination="@id/roomFragment" />
-        <action
             android:id="@+id/action_roomInfoFragment_to_dashboardFragment"
-            app:destination="@id/dashboardFragment" />
+            app:destination="@id/dashboardFragment"/>
     </fragment>
 
     <fragment
@@ -123,7 +122,11 @@
             android:id="@+id/action_signInFragment_to_profileCreateFragment"
             app:destination="@id/profileCreateFragment" />
     </fragment>
-
+    <fragment
+        android:id="@+id/fileInfoFragment"
+        android:name="com.example.reon.fragments.FileInfoFragment"
+        android:label="FileInfoFragment" >
+    </fragment>
 
 
 </navigation>
