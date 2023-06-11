@@ -6,6 +6,8 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Environment;
+import android.os.storage.StorageManager;
+import android.util.Log;
 
 import androidx.annotation.RequiresApi;
 
@@ -16,11 +18,12 @@ import com.google.firebase.storage.FirebaseStorage;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Locale;
 
 public class Reon extends Application {
 
-    private final String TAG = "reon_app";
+    private final String TAG = "reon_Application";
 
     private FirebaseDatabase database;
     private FirebaseStorage storage;
@@ -36,10 +39,21 @@ public class Reon extends Application {
         database = FirebaseDatabase.getInstance();
         storage = FirebaseStorage.getInstance();
         database.setPersistenceEnabled(true);
-
-        File f = new File(Environment.getExternalStorageDirectory(), "Reon/downloads");
+        String path;
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+//            StorageManager storageManager = (StorageManager) getSystemService(Context.STORAGE_SERVICE);
+//            path = storageManager.getPrimaryStorageVolume().getDirectory().getAbsolutePath();
+//            Log.d(TAG, "primary storaage path: " + path);
+//        } else {
+        path = getApplicationContext().getExternalFilesDir("downloads").getAbsolutePath();
+//        path = Environment.getExternalStoragePublicDirectory("/Reon/downloads/").getAbsolutePath();
+//        }
+//        path = path + "/Reon/downloads";
+        File f = new File(path);
+        Log.d(TAG, "Path: " + f.getAbsolutePath());
+        Log.d(TAG, Arrays.toString(getApplicationContext().getExternalMediaDirs()));//(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath());
         if (!f.exists()) {
-            f.mkdirs();
+            Log.d(TAG, String.valueOf(f.mkdirs()));
         }
 
 //        Path filesDirectory = Paths.get(getApplicationContext().getExternalFilesDir(null).getAbsolutePath());
@@ -64,10 +78,10 @@ public class Reon extends Application {
 
     public FirebaseStorage getStorage() { return storage; }
 
-    private boolean isNetworkAvailable() {
+    public boolean isNetworkAvailable() {
         ConnectivityManager connectivityManager
                 = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
-        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnectedOrConnecting();
     }
 }

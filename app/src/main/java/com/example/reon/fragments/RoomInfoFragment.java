@@ -18,6 +18,7 @@ import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
+import android.widget.PopupMenu;
 import android.widget.Scroller;
 import android.widget.SearchView;
 import android.widget.Toast;
@@ -27,6 +28,7 @@ import androidx.annotation.Nullable;
 import androidx.core.view.MenuProvider;
 import androidx.lifecycle.Lifecycle;
 import androidx.navigation.NavBackStackEntry;
+import androidx.navigation.NavOptions;
 import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.GridLayoutManager;
@@ -68,6 +70,7 @@ public class RoomInfoFragment extends BaseFragment implements UserListAdapter.On
     ArrayList<User> members = new ArrayList<>();
     private UserListAdapter userListAdapter;
     private DatabaseReference membersRef;
+    private RecyclerView userList;
 
     public RoomInfoFragment() {
         // Required empty public constructor
@@ -85,6 +88,8 @@ public class RoomInfoFragment extends BaseFragment implements UserListAdapter.On
         usersRef =  getDatabaseReference().child("users");
         membersRef = getDatabaseReference("rooms").child(roomId).child("memberList");
 
+
+        // Check for updates ValueListener
         roomRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -95,7 +100,6 @@ public class RoomInfoFragment extends BaseFragment implements UserListAdapter.On
                 roomName = (String) binding.textRoomName.getText();
                 roomDescription = (String) binding.textRoomDescription.getText();
                 binding.textRoomDescription.setMovementMethod(new ScrollingMovementMethod());
-
             }
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
@@ -127,7 +131,7 @@ public class RoomInfoFragment extends BaseFragment implements UserListAdapter.On
     }
 
     private void initializeRecyclerView() {
-        RecyclerView userList = binding.recyclerUserList;
+        userList = binding.recyclerUserList;
         userList.setNestedScrollingEnabled(false);
         userList.setHasFixedSize(false);
         RecyclerView.LayoutManager userListLayoutManager = new GridLayoutManager(getMainActivity(), 1, RecyclerView.VERTICAL, false);
@@ -501,6 +505,105 @@ public class RoomInfoFragment extends BaseFragment implements UserListAdapter.On
 
     @Override
     public void onUserLongClick(int position) {
+        User user = members.get(position);
+        if(Objects.equals(user.getId(), getCurrentUser().getUid()))
+            return;
 
+        PopupMenu popup = new PopupMenu(Objects.requireNonNull(getMainActivity().getSupportActionBar()).getThemedContext(), Objects.requireNonNull(userList.findViewHolderForAdapterPosition(position)).itemView);
+        //Inflating the Popup using xml file
+        popup.getMenuInflater().inflate(R.menu.menu_room_members, popup.getMenu());
+
+        if(user.isAdmin()) {
+            popup.getMenu().findItem(R.id.menuItem_toggle_admin).setTitle("Remove Admin");
+        }
+
+        //registering popup with OnMenuItemClickListener
+        popup.setOnMenuItemClickListener(item -> {
+            int itemId = item.getItemId();
+            if (itemId == R.id.menuItem_toggle_admin) {
+//                folderFilesRef.removeEventListener(folderFilesListener);
+                DatabaseReference roomRef = getDatabaseReference("rooms").child(roomId);
+                roomRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        ArrayList<String> admins = new ArrayList<>();
+                        for (DataSnapshot ds : snapshot.child("adminList").getChildren()) {
+                            admins.add((String) ds.getValue());
+                        }
+                        if(user.isAdmin()) {
+                            admins.remove(user.getId());
+                        } else {
+                            admins.add(user.getId());
+                        }
+                        user.setAdmin(!user.isAdmin());
+                        roomRef.child("adminList").setValue(admins);
+//                        userListAdapter.notifyItemChanged(position);
+                        userListAdapter.notifyDataSetChanged();
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {}
+                });
+            } else if (itemId == R.id.menuItem_remove_member) {
+                AlertDialogBuilder builder = new AlertDialogBuilder(getMainActivity());
+                builder.setIcon(android.R.drawable.ic_dialog_info);
+                builder.setTitle("Remove User?");
+
+                builder.setCancelable(true);
+                builder.setPositiveButton("Yes", (dialog, which) -> {
+                    DatabaseReference userRoomsRef = getDatabaseReference("users").child(user.getId()).child("roomList");
+
+                    userRoomsRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                            ArrayList<String> rooms = new ArrayList<>();
+                            for (DataSnapshot ds : snapshot.getChildren()) {
+                                rooms.add((String) ds.getValue());
+                            }
+                            rooms.remove(user.getId());
+                            userRoomsRef.setValue(rooms);
+                        }
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {
+                            Log.d(TAG, error.getMessage());
+                        }
+                    });
+
+                    DatabaseReference roomRef = getDatabaseReference("rooms").child(roomId);
+                    roomRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                            ArrayList<String> roomMembers = new ArrayList<>();
+                            for (DataSnapshot ds : snapshot.child("memberList").getChildren()) {
+                                roomMembers.add((String) ds.getValue());
+                            }
+                            roomMembers.remove(user.getId());
+                            roomRef.child("memberList").setValue(roomMembers);
+
+                            ArrayList<String> admins = new ArrayList<>();
+                            for (DataSnapshot ds : snapshot.child("adminList").getChildren()) {
+                                admins.add((String) ds.getValue());
+                            }
+                            admins.remove(user.getId());
+                            roomRef.child("adminList").setValue(admins);
+//                            userListAdapter.notifyItemChanged(position);
+                            userListAdapter.notifyDataSetChanged();
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {
+
+                        }
+                    });
+                });
+                builder.setNegativeButton("No", (dialog, which) -> dialog.cancel());
+
+                AlertDialog removeMemberDialog = builder.create();
+                removeMemberDialog.show();
+            }
+            return true;
+        });
+
+        popup.show();//showing popup menu
     }
 }

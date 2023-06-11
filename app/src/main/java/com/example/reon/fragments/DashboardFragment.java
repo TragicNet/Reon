@@ -40,11 +40,10 @@ public class DashboardFragment extends BaseFragment implements RoomListAdapter.O
 
     private DatabaseReference userRoomsRef, allRoomsRef;
 
-    ArrayList<String> roomIds = new ArrayList<>();
-    ArrayList<Room> rooms = new ArrayList<>();
+    private ArrayList<String> roomIds = new ArrayList<>();
+    private ArrayList<Room> rooms = new ArrayList<>();
     private RoomListAdapter roomListAdapter;
     private FragmentDashboardBinding binding;
-
 
     public DashboardFragment() {
         // Required empty public constructor
@@ -80,6 +79,7 @@ public class DashboardFragment extends BaseFragment implements RoomListAdapter.O
             Navigation.findNavController(view).navigate(R.id.action_dashboardFragment_to_roomCreateFragment);
         });
 
+        // Initialize the menu for Dashboard
         getMainActivity().addMenuProvider(new MenuProvider() {
             @Override
             public void onCreateMenu(@NonNull Menu menu, @NonNull MenuInflater menuInflater) {

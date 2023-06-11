@@ -10,6 +10,7 @@ import android.content.BroadcastReceiver;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.Cursor;
@@ -52,6 +53,7 @@ import com.example.reon.adapters.FileListAdapter;
 import com.example.reon.classes.AlertDialogBuilder;
 import com.example.reon.classes.File;
 import com.example.reon.databinding.FragmentFolderBinding;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -63,6 +65,7 @@ import com.google.firebase.storage.StorageReference;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 import java.util.Objects;
 
 public class FolderFragment extends BaseFragment implements FileListAdapter.OnFileListener {
@@ -322,56 +325,6 @@ public class FolderFragment extends BaseFragment implements FileListAdapter.OnFi
             fileActionMode = getMainActivity().startSupportActionMode(fileActionModeCallback);
             fileListAdapter.toggleSelection(position);
         }
-
-//        File file = files.get(position);
-//        if (getCurrentUser().getUid().equals(file.getUploaded_by()) || isAdmin()) {
-//
-//            AlertDialogBuilder builder = new AlertDialogBuilder(getMainActivity());
-//
-//            builder.setIcon(android.R.drawable.ic_dialog_alert);
-//            builder.setTitle("Delete?");
-//            builder.setMessage("Are you sure you want to delete this file?");
-//            builder.setCancelable(true);
-//            builder.setPositiveButton("Yes", (dialog, which) -> {
-//                Log.d(TAG, "deleting file: " + files.get(position).getName());
-//
-//                folderFilesRef.removeEventListener(folderFilesListener);
-//
-//                StorageReference uploadsRef = getStorageReference().child("uploads");
-//                uploadsRef.child(file.getId()).delete().addOnSuccessListener(aVoid -> allFilesRef.addListenerForSingleValueEvent(new ValueEventListener() {
-//                    @Override
-//                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-//                        if (snapshot.hasChild(file.getId())) {
-//                            allFilesRef.child(file.getId()).removeValue();
-//                        }
-//                        folderFilesRef.addListenerForSingleValueEvent(new ValueEventListener() {
-//                            @Override
-//                            public void onDataChange(@NonNull DataSnapshot snapshot) {
-//                                fileIds.remove(position);
-//                                folderFilesRef.setValue(fileIds);
-//                                fileListAdapter.removeThumbnail(position);
-//                            }
-//
-//                            @Override
-//                            public void onCancelled(@NonNull DatabaseError error) {
-//                                Log.e(TAG, error.getMessage());
-//                            }
-//                        });
-//                        folderFilesRef.addValueEventListener(folderFilesListener);
-//                        Toast.makeText(getMainActivity(), "File Deleted", Toast.LENGTH_SHORT).show();
-//                    }
-//
-//                    @Override
-//                    public void onCancelled(@NonNull DatabaseError error) {
-//                        Log.e(TAG, error.getMessage());
-//                    }
-//                }));
-//            });
-//            builder.setNegativeButton("No", (dialog, which) -> dialog.cancel());
-//
-//            AlertDialog deleteFileDialog = builder.create();
-//            deleteFileDialog.show();
-//        }
     }
 
     private ActionMode.Callback fileActionModeCallback = new ActionMode.Callback() {
@@ -392,22 +345,90 @@ public class FolderFragment extends BaseFragment implements FileListAdapter.OnFi
             int itemId = item.getItemId();
             if (itemId == R.id.menuItem_selectAllFiles) {
                 fileListAdapter.selectAll();
+                actionMenu.findItem(R.id.menuItem_shareFile).setVisible(false);
+                actionMenu.findItem(R.id.menuItem_infoFile).setVisible(false);
                 return true;
             } else if (itemId == R.id.menuItem_downloadFile) {
-                int position = 0;
                 for (File file: fileListAdapter.getSelectedFiles()) {
                     java.io.File temp = new java.io.File(Reon.downloadsDirectory + file.getName());
                     if (!temp.exists()) {
-                        downloadFile(file, position);
+                        downloadFile(file, fileListAdapter.getPosition(file));
                     }
-                    position++;
                 }
-                Log.d(TAG, "download action");
                 mode.finish();
                 return true;
             } else if (itemId == R.id.menuItem_deleteFile) {
-                // TODO
-                Log.d(TAG, "delete action");
+                List<File> selectedFiles = fileListAdapter.getSelectedFiles();
+                AlertDialogBuilder builder = new AlertDialogBuilder(getMainActivity());
+
+                builder.setIcon(android.R.drawable.ic_dialog_alert);
+                builder.setTitle("Delete?");
+                String[] options = { "Remove from Device", "Delete from Folder" };
+                builder.setItems(options, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        switch (which) {
+                            case 0:
+                                Log.d(TAG, String.valueOf(selectedFiles.size()));
+                                for (File file : selectedFiles) {
+                                    java.io.File temp = new java.io.File(Reon.downloadsDirectory + file.getName());
+                                    if(temp.exists() && temp.delete()) {
+                                        fileListAdapter.notifyItemChanged(fileListAdapter.getPosition(file));
+                                    }
+                                }
+                                break;
+                            case 1:
+                                Log.d(TAG, "Deleted from Folder");
+                                boolean uploader = true;
+                                for (File file : selectedFiles) {
+                                    if(!getCurrentUser().getUid().equals(file.getUploaded_by())) {
+                                        uploader = false;
+                                        // TODO Alert no rights
+                                        break;
+                                    }
+                                }
+                                if (uploader || isAdmin()) {
+                                    for (File file : selectedFiles) {
+                                        Log.d(TAG, "deleting: " + file.getName());
+                                        folderFilesRef.removeEventListener(folderFilesListener);
+                                        int position = fileListAdapter.getPosition(file);
+                                        StorageReference uploadsRef = getStorageReference().child("uploads");
+                                        uploadsRef.child(file.getId()).delete().addOnSuccessListener(unused -> allFilesRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                                            @Override
+                                            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                                if (snapshot.hasChild(file.getId())) {
+                                                    allFilesRef.child(file.getId()).removeValue();
+                                                }
+                                                folderFilesRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                                                    @Override
+                                                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                                        fileIds.remove(position);
+                                                        folderFilesRef.setValue(fileIds);
+                                                    }
+                                                    @Override
+                                                    public void onCancelled(@NonNull DatabaseError error) {
+                                                        Log.e(TAG, error.getMessage());
+                                                    }
+                                                });
+                                                fileListAdapter.notifyItemRemoved(position);
+                                                folderFilesRef.addValueEventListener(folderFilesListener);
+//                                                Toast.makeText(getMainActivity(), "File Deleted", Toast.LENGTH_SHORT).show();
+                                            }
+                                            @Override
+                                            public void onCancelled(@NonNull DatabaseError error) {
+                                                Log.e(TAG, error.getMessage());
+                                            }
+                                        }));
+                                    }
+                                }
+
+                                break;
+                        }
+                    }
+                });
+
+                AlertDialog deleteFileDialog = builder.create();
+                deleteFileDialog.show();
                 mode.finish();
                 return true;
             } else if (itemId == R.id.menuItem_shareFile) {
@@ -456,6 +477,15 @@ public class FolderFragment extends BaseFragment implements FileListAdapter.OnFi
     }
 
     public void downloadFile(File file, int position) {
+
+        if(!getApp().isNetworkAvailable()) {
+            Toast.makeText(getMainActivity(), "No Internet Connection", Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        fileListAdapter.startDownloading(position);
+        fileListAdapter.notifyItemChanged(position);
+
         String uri = file.getUri();
         getMainActivity().storagePermissionGranted();
 
@@ -465,8 +495,9 @@ public class FolderFragment extends BaseFragment implements FileListAdapter.OnFi
                 .setMimeType(file.getType())
                 .setTitle(file.getName())
                 .setDescription(uri)
-                .setDestinationInExternalPublicDir("/Reon/downloads/", file.getName());
-
+                .setVisibleInDownloadsUi(true)
+                .setDestinationUri(Uri.fromFile(new java.io.File(Reon.downloadsDirectory, file.getName())));
+//                .setDestinationInExternalFilesDir(getMainActivity().getApplicationContext(), "/downloads/", file.getName());
 
         DownloadManager downloadManager = (DownloadManager) getMainActivity().getSystemService(Context.DOWNLOAD_SERVICE);
 
@@ -481,8 +512,7 @@ public class FolderFragment extends BaseFragment implements FileListAdapter.OnFi
                 @SuppressLint("Range") int status = c.getInt(c.getColumnIndex(DownloadManager.COLUMN_STATUS));
                 Log.d(TAG, "status: " + status);
                 if (status == DownloadManager.STATUS_RUNNING) {
-                    fileListAdapter.startDownloading(position);
-                    fileListAdapter.notifyItemChanged(position);
+                    // START
                 }
             }
         }
@@ -512,8 +542,8 @@ public class FolderFragment extends BaseFragment implements FileListAdapter.OnFi
                             @SuppressLint("Range") int status = c.getInt(c.getColumnIndex(DownloadManager.COLUMN_STATUS));
                             if (status == DownloadManager.STATUS_SUCCESSFUL) {
                                 // process download
-                                @SuppressLint("Range") String title = c.getString(c.getColumnIndex(DownloadManager.COLUMN_TITLE));
-                                Log.d(TAG, title);
+                                @SuppressLint("Range") String uri = c.getString(c.getColumnIndex(DownloadManager.COLUMN_LOCAL_URI));
+                                Log.d(TAG, uri);
 //                            fileListAdapter.notifyItemChanged(downloadPosition);
                                 // get other required data by changing the constant passed to getColumnIndex
                             }

@@ -6,7 +6,7 @@ public class Room {
     private String id;
     private String created_at;
     private String name;
-    private String description;
+    private String description; 
     private String link;
     private ArrayList<String> adminList;
     private ArrayList<String> memberList;

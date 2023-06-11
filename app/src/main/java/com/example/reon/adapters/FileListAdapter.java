@@ -94,6 +94,10 @@ public class FileListAdapter extends RecyclerView.Adapter<FileListAdapter.ViewHo
         File file = files.get(position);
 //        Log.d("reon_FileListAdapter", "name: " + file.getName());
         java.io.File temp = new java.io.File(Reon.downloadsDirectory + file.getName());
+        TextView nameView = holder.itemView.findViewById(R.id.file_item_name);
+        if(file.getUploaded_by().equals(((Reon) context.getApplicationContext()).getCurrentUser().getUid())) {
+            nameView.setTextColor(context.getResources().getColor(R.color.common_accent));
+        }
         ImageView downloadIcon = holder.itemView.findViewById(R.id.file_item_download);
         if (temp.exists()) {
             downloadIcon.setVisibility(View.GONE);
@@ -202,12 +206,16 @@ public class FileListAdapter extends RecyclerView.Adapter<FileListAdapter.ViewHo
     }
 
     public List<File> getSelectedFiles() {
-        List<File> selectedFiles = new ArrayList<File>();
+        List<File> selectedFiles = new ArrayList<>();
         for(File file : files) {
             if(file.isSelected())
                 selectedFiles.add(file);
         }
         return selectedFiles;
+    }
+
+    public int getPosition(File file) {
+        return files.indexOf(file);
     }
 
 
